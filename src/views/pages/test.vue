@@ -3,17 +3,17 @@
     <el-container class="layout-container" :style="{height: itemheight + 'px'}">
         <el-aside width="200px">
             <el-scrollbar>
-                <el-menu :default-openeds="['1', '3']" class="el-menu">
-                    <el-sub-menu index="1">
-                        <template #title>
-                            <el-icon>
+                <el-menu :default-openeds="['1', '3']" >
+                    <el-sub-menu class="el-menu-item-color" index="1">
+                        <template #title class="el-menu-item-color">
+                            <el-icon class="el-menu-item-color">
                                 <message />
                             </el-icon>Navigator One
                         </template>
-                        <el-menu-item-group>
+                        <el-menu-item-group class="el-menu-item-color">
                             <template #title>Group 1</template>
-                            <el-menu-item index="1-1">Option 1</el-menu-item>
-                            <el-menu-item index="1-2">Option 2</el-menu-item>
+                            <el-menu-item class="el-menu-item-color" index="1-1">Option 1</el-menu-item>
+                            <el-menu-item class="el-menu-item-color" index="1-2">Option 2</el-menu-item>
                         </el-menu-item-group>
                         <el-menu-item-group title="Group 2">
                             <el-menu-item index="1-3">Option 3</el-menu-item>
@@ -128,7 +128,7 @@ const resizeContainer = () => {
 
 <style scoped>
 
-.el-menu{
+.el-menu-item-color{
     color: var(--header-text-color);
     background: var(--header-bg-color);
 }
@@ -147,7 +147,13 @@ const resizeContainer = () => {
 
 .layout-container .el-menu {
     border-right: none;
+    color: var(--header-text-color);
+    background: var(--header-bg-color);
 }
+/* .el-menu:deep(.el-sub-menu):deep(el-menu-item-group) {
+    color: var(--header-text-color);
+    background: var(--header-bg-color);
+} */
 
 .layout-container .el-main {
     padding: 0;
