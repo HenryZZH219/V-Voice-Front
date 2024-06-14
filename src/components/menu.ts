@@ -34,9 +34,23 @@ export const menuData: Menus[] = [
         ],
     },
     {
+        id: '9',
+        title: '语音房',
+        index: '9',
+        icon: 'PhoneFilled',
+        children: [
+            {
+                id: '91',
+                pid: '1',
+                index: '/chats/addRoom',
+                title: '添加房间',
+            },
+        ],
+    },
+    {
         id: '2',
         title: '组件',
-        index: '2-1',
+        index: '2',
         icon: 'Calendar',
         children: [
             {

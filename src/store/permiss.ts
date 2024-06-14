@@ -42,6 +42,8 @@ export const usePermissStore = defineStore('permiss', {
                 '64',
                 '65',
                 '66',
+                '9',
+                '91',
             ],
             user: ['0', '1', '11', '12', '13'],
         };
