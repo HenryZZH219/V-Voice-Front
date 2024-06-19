@@ -3,7 +3,7 @@
         <div class="login-container">
             <div class="login-header">
                 <img class="logo mr10" src="../../assets/img/logo.svg" alt="" />
-                <div class="login-title">后台管理系统</div>
+                <div class="login-title">VVoice-注册</div>
             </div>
             <el-form :model="param" :rules="rules" ref="register" size="large">
                 <el-form-item prop="username">
@@ -25,12 +25,16 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input
-                        type="password"
-                        placeholder="密码"
-                        v-model="param.password"
-                        @keyup.enter="submitForm(register)"
-                    >
+                    <el-input type="password" placeholder="密码" v-model="param.password">
+                        <template #prepend>
+                            <el-icon>
+                                <Lock />
+                            </el-icon>
+                        </template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item prop="checkpass">
+                    <el-input v-model="checkPass" type="password" placeholder="请再次输入密码">
                         <template #prepend>
                             <el-icon>
                                 <Lock />
@@ -52,6 +56,7 @@ import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import { Register } from '@/types/user';
+import { Login } from '@/api/index'
 
 const router = useRouter();
 const param = reactive<Register>({
@@ -59,7 +64,19 @@ const param = reactive<Register>({
     password: '',
     email: '',
 });
+const checkPass = ref('');
 
+
+
+const validateConfirmPassword = (rule: any, value: any, callback: any) => {
+    if (checkPass.value === '') {
+        callback(new Error('请再次输入密码'))
+    } else if (checkPass.value !== param.password) {
+        callback(new Error("两次输入不一致!"))
+    } else {
+        callback()
+    }
+}
 const rules: FormRules = {
     username: [
         {
@@ -68,20 +85,38 @@ const rules: FormRules = {
             trigger: 'blur',
         },
     ],
-    password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+    password: [{ required: true, message: '请输入密码', trigger: 'blur' }, {
+        min: 8,
+        max: 18,
+        message: '密码长度位8-18个字符',
+        trigger: 'blur'
+    },],
     email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
+    checkpass: [{ validator: validateConfirmPassword, trigger: 'blur' }],
 };
+
+
+
+
 const register = ref<FormInstance>();
-const submitForm = (formEl: FormInstance | undefined) => {
+const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return;
+    
     formEl.validate((valid: boolean) => {
         if (valid) {
-            ElMessage.success('注册成功，请登录');
-            router.push('/login');
+            // ElMessage.success('注册成功，请登录');
+            // router.push('/login');
         } else {
             return false;
         }
     });
+    const { code, message, data } = await (await Login(param)).data
+    if (code === 200) {
+      ElMessage.success('操作成功')
+      router.push('/login');
+    } else {
+      ElMessage.error(message)
+    }
 };
 </script>
 
