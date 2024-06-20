@@ -56,7 +56,7 @@ import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import { Register } from '@/types/user';
-import { Login } from '@/api/index'
+import { RegisterApi } from '@/api/index'
 
 const router = useRouter();
 const param = reactive<Register>({
@@ -110,7 +110,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             return false;
         }
     });
-    const { code, message, data } = await (await Login(param)).data
+    const { code, message, data } = await (await RegisterApi(param)).data
     if (code === 200) {
       ElMessage.success('操作成功')
       router.push('/login');

@@ -14,3 +14,17 @@ export interface Register {
     password: string;
     email: string;
 }
+
+export interface UserModel {
+    id: number | null;
+    username: string;
+    password: string;
+    name: string;
+    email: string;
+    phone: string;
+    avatar: string;
+    description: string;
+    status: string;
+    create_time: string;
+    update_time: string;
+  }

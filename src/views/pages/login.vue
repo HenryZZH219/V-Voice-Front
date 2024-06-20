@@ -16,12 +16,8 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input
-                        type="password"
-                        placeholder="密码"
-                        v-model="param.password"
-                        @keyup.enter="submitForm(login)"
-                    >
+                    <el-input type="password" placeholder="密码" v-model="param.password"
+                        @keyup.enter="submitForm(login)">
                         <template #prepend>
                             <el-icon>
                                 <Lock />
@@ -50,6 +46,8 @@ import { usePermissStore } from '@/store/permiss';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
+import { LoginApi } from '@/api/index'
+
 
 interface LoginInfo {
     username: string;
@@ -59,6 +57,7 @@ interface LoginInfo {
 const lgStr = localStorage.getItem('login-param');
 const defParam = lgStr ? JSON.parse(lgStr) : null;
 const checked = ref(lgStr ? true : false);
+const token = ref('');
 
 const router = useRouter();
 const param = reactive<LoginInfo>({
@@ -78,25 +77,37 @@ const rules: FormRules = {
 };
 const permiss = usePermissStore();
 const login = ref<FormInstance>();
-const submitForm = (formEl: FormInstance | undefined) => {
+const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return;
     formEl.validate((valid: boolean) => {
         if (valid) {
-            ElMessage.success('登录成功');
-            localStorage.setItem('vuems_name', param.username);
-            const keys = permiss.defaultList[param.username == 'admin' ? 'admin' : 'user'];
-            permiss.handleSet(keys);
-            router.push('/');
-            if (checked.value) {
-                localStorage.setItem('login-param', JSON.stringify(param));
-            } else {
-                localStorage.removeItem('login-param');
-            }
+
         } else {
             ElMessage.error('登录失败');
             return false;
         }
     });
+    const { code, message, data } = await (await LoginApi(param)).data
+
+    if (code === 200) {
+        ElMessage.success('登录成功')
+        token.value = data.token
+        // console.log(token.value)
+        localStorage.setItem('token', token.value);
+        if (checked.value) {
+            localStorage.setItem('login-param', JSON.stringify(param));
+        } else {
+            localStorage.removeItem('login-param');
+        }
+        router.push('/');
+    } else {
+        ElMessage.error(message)
+    }
+    localStorage.setItem('vuems_name', param.username);
+    const keys = permiss.defaultList[param.username == 'admin' ? 'admin' : 'user'];
+    permiss.handleSet(keys);
+    // router.push('/');
+
 };
 
 const tabs = useTabsStore();
