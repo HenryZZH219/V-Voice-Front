@@ -1,20 +1,27 @@
 import request from '../utils/request';
 
-// 登录接口
+// 获取用户信息
 export const GetUserInfo = () => {
-    const timestamp = new Date().getTime(); 
     return request({
         url: '/user/getuserinfo',
         method: 'get',
-        params: {timestamp}
     })
 }
 
-// 登录接口
+// 修改基本信息
 export const UpdateUser = (update) => {
     return request({
         url: '/user/updateUser',
-        method: 'post',
+        method: 'put',
+        data:update
+    })
+}
+
+// 修改密码
+export const UpdatePasswd = (update) => {
+    return request({
+        url: '/user/updatePasswd',
+        method: 'put',
         data:update
     })
 }

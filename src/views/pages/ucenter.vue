@@ -51,16 +51,16 @@
                         </el-button>
                         <el-button type="success" @click="saveAvatar">上传并保存</el-button>
                     </el-tab-pane>
-                    <el-tab-pane name="label3" label="修改密码" class="user-tabpane">
-                        <el-form class="w500" label-position="top">
-                            <el-form-item label="旧密码：">
-                                <el-input type="password" v-model="form.old"></el-input>
+                    <el-tab-pane name="label3" label="修改密码" class="user-tabpane" >
+                        <el-form :model="paramPass" class="w500" label-position="top" :rules="rules">
+                                <el-form-item label="旧密码：" prop="oldPasswd">
+                                    <el-input type="password" v-model="paramPass.oldPasswd"></el-input>
+                                </el-form-item>
+                            <el-form-item label="新密码：" prop="newPasswd">
+                                <el-input type="password" v-model="paramPass.newPasswd"></el-input>
                             </el-form-item>
-                            <el-form-item label="新密码：">
-                                <el-input type="password" v-model="form.new"></el-input>
-                            </el-form-item>
-                            <el-form-item label="确认新密码：">
-                                <el-input type="password" v-model="form.new1"></el-input>
+                            <el-form-item label="确认新密码：" prop="checkPass">
+                                <el-input type="password" v-model="paramPass.checkPass"></el-input>
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" @click="onSubmit">保存</el-button>
@@ -108,15 +108,19 @@
 </template>
 
 <script setup lang="ts" name="ucenter">
+import { useRouter } from 'vue-router';
 import { reactive, ref, onMounted } from 'vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import avatar from '@/assets/img/img.jpg';
 import TabsComp from '../element/tabs.vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, type FormRules } from 'element-plus';
 import { UserModel } from '@/types/user';
-import { GetUserInfo, UpdateUser } from '@/api/user'
+import { GetUserInfo, UpdateUser, UpdatePasswd } from '@/api/user'
+import { Logout } from '@/api/index'
 
+
+const router = useRouter();
 const user = reactive<UserModel>({
     id: null,
     username: '',
@@ -173,12 +177,50 @@ onMounted(async () => {
 
 //const name = localStorage.getItem('vuems_name');
 const name = user.phone;
-const form = reactive({
-    new1: '',
-    new: '',
-    old: '',
+const paramPass = reactive({
+    oldPasswd: '',
+    newPasswd: '',
+    checkPass: ''
 });
-const onSubmit = () => { };
+
+
+//密码框规则
+const validateConfirmPassword = (rule: any, value: any, callback: any) => {
+    if (value !== paramPass.newPasswd) {
+        callback(new Error("两次输入不一致!"))
+    } else {
+        callback()
+    }
+}
+const rules: FormRules = {
+
+    newPasswd: [{ required: true, trigger: 'blur' ,message: '请输入新密码'}, {
+        min: 8,
+        max: 18,
+        message: '密码长度位8-18个字符',
+        trigger: 'blur'
+    },],
+    oldPasswd: [{ required: true, trigger: 'blur' ,message: '请输入旧密码'}, {
+        min: 8,
+        max: 18,
+        message: '密码长度位8-18个字符',
+        trigger: 'blur'
+    },],
+
+    checkPass: [{ required: true, trigger: 'blur', message: '请再次输入密码' }, { validator: validateConfirmPassword, trigger: 'blur' }],
+};
+//修改密码
+const onSubmit = async () => {
+    const { code, message, data } = (await UpdatePasswd(paramPass)).data 
+    
+    if (code === 200) {
+        await Logout();
+        ElMessage.success("修改成功")
+        router.push('/login');
+    } else {
+        ElMessage.error(message)
+    }
+};
 
 const activeName = ref('label1');
 

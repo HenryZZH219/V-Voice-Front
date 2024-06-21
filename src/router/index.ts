@@ -42,6 +42,15 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "test" */ '../views/pages/addRoom.vue'),
             },
             {
+                path: '/chats/test',
+                name:'测试',
+                meta: {
+                    title: '测试',
+                    noAuth: true,
+                },
+                component: () => import(/* webpackChunkName: "test" */ '../views/pages/test2.vue'),
+            },
+            {
                 path: '/system-user',
                 name: 'system-user',
                 meta: {

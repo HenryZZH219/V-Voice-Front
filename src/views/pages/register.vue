@@ -33,7 +33,7 @@
                         </template>
                     </el-input>
                 </el-form-item>
-                <el-form-item prop="checkpass">
+                <el-form-item prop="checkPass">
                     <el-input v-model="checkPass" type="password" placeholder="请再次输入密码">
                         <template #prepend>
                             <el-icon>
@@ -92,7 +92,7 @@ const rules: FormRules = {
         trigger: 'blur'
     },],
     email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
-    checkpass: [{ validator: validateConfirmPassword, trigger: 'blur' }],
+    checkPass: [{ validator: validateConfirmPassword, trigger: 'blur' }],
 };
 
 

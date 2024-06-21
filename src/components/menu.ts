@@ -45,6 +45,12 @@ export const menuData: Menus[] = [
                 index: '/chats/addRoom',
                 title: '添加房间',
             },
+            {
+                id: '92',
+                pid: '2',
+                index: '/chats/test',
+                title: '测试',
+            },
         ],
     },
     {
