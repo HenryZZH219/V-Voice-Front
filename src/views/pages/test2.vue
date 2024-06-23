@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus'
 const route = useRoute();
 const roomId = route.params.roomId;
