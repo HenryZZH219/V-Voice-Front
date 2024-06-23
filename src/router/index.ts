@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
                     title: '聊天房',
                     noAuth: true,
                 },
-                component: () => import(/* webpackChunkName: "test" */ '../views/pages/test.vue'),
+                component: () => import(/* webpackChunkName: "test" */ '../views/pages/rooms/index.vue'),
             },
             {
                 path: '/chats/addRoom',
