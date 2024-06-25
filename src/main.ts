@@ -6,6 +6,7 @@ import router from './router';
 import { usePermissStore } from './store/permiss';
 import 'element-plus/dist/index.css';
 import './assets/css/icon.css';
+import '@/assets/sass/index.scss' // 全局样式
 
 const app = createApp(App);
 app.use(createPinia());

@@ -27,4 +27,18 @@ export interface UserModel {
     status: string;
     create_time: string;
     update_time: string;
-  }
+}
+
+export interface MessageSent {
+    token: string;
+    content: string;
+    messageType: string;
+
+}
+
+export interface MessageReceive {
+    userID: number;
+    content: string;
+    messageType: string;
+    createdAt: string;
+}
