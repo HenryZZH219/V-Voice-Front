@@ -25,3 +25,15 @@ export const UpdatePasswd = (update) => {
         data:update
     })
 }
+
+// 根据Ids获取用户信息
+export const GetUserInfoByIds = (ids) => {
+    return request({
+        url: '/user/GetUserInfoByIds',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data:ids
+    })
+}

@@ -15,3 +15,17 @@ theme.initTheme();
 <style>
 @import './assets/css/main.css';
 </style>
+
+<style>
+#app {
+	height: 100vh;
+	width: 100%;
+	/* display: flex; */
+	font-size: var(--el-font-size-base);
+	color: var(--el-text-color-primary);
+	overflow-y: auto;
+	/* 当内容超出时显示滚动条 */
+	overflow-x: hidden;
+	/* 隐藏水平滚动条 */
+}
+</style>

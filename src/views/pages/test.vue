@@ -1,42 +1,105 @@
-<template>
-    <h1>Chat Room: {{ roomId }}</h1>
-
-
-</template>
-
-<script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount  } from 'vue'
-import { useRoute } from 'vue-router';
-import { Menu as IconMenu, Message, Setting } from '@element-plus/icons-vue'
-import vHeader from '@/components/header.vue';
-// import vSidebar from '@/components/sidebar.vue';
-const route = useRoute();
-const roomId = route.params.roomId;
-const item = {
-    date: '2016-05-02',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles',
+<script setup lang="ts">
+// 收集未缓存的用户ID
+function collectUncachedUserIds(messages) {
+  const uncachedUserIds = new Set();
+  messages.forEach(message => {
+    if (!userCache.has(message.userId)) {
+      uncachedUserIds.add(message.userId);
+    }
+  });
+  return Array.from(uncachedUserIds);
 }
-const tableData = ref(Array.from({ length: 20 }).fill(item))
 
-const containerRef = ref(null);
-const itemheight = ref(100)
-onMounted(() => {
-  resizeContainer();
-  window.addEventListener('resize', resizeContainer);
-});
-onBeforeUnmount(() => {
-    window.removeEventListener('resize',resizeContainer);
-});
-const resizeContainer = () => {
-  if (itemheight) {
-    itemheight.value = window.innerHeight - 70;
+// 批量获取用户信息
+function fetchUsersInfo(userIds) {
+  return fetch(`/api/users?ids=${userIds.join(',')}`)
+    .then(response => response.json())
+    .then(usersInfo => {
+      usersInfo.forEach(userInfo => {
+        userCache.set(userInfo.id, userInfo);
+      });
+      return usersInfo;
+    });
+}
+
+// 处理消息
+function processMessages(messages) {
+  const uncachedUserIds = collectUncachedUserIds(messages);
+
+  if (uncachedUserIds.length > 0) {
+    fetchUsersInfo(uncachedUserIds).then(() => {
+      messages.forEach(message => {
+        const userInfo = userCache.get(message.userId);
+        displayMessage(message, userInfo);
+      });
+    });
+  } else {
+    messages.forEach(message => {
+      const userInfo = userCache.get(message.userId);
+      displayMessage(message, userInfo);
+    });
   }
-};
+}
 
+// 示例消息
+const messages = [
+  { userId: '1', content: 'Hello!' },
+  { userId: '2', content: 'Hi there!' },
+  { userId: '1', content: 'How are you?' }
+];
 
+// 处理消息
+processMessages(messages);
+
+// 收集未缓存的用户ID
+function collectUncachedUserIds(messages) {
+  const uncachedUserIds = new Set();
+  messages.forEach(message => {
+    if (!userCache.has(message.userId)) {
+      uncachedUserIds.add(message.userId);
+    }
+  });
+  return Array.from(uncachedUserIds);
+}
+
+// 批量获取用户信息
+function fetchUsersInfo(userIds) {
+  return fetch(`/api/users?ids=${userIds.join(',')}`)
+    .then(response => response.json())
+    .then(usersInfo => {
+      usersInfo.forEach(userInfo => {
+        userCache.set(userInfo.id, userInfo);
+      });
+      return usersInfo;
+    });
+}
+
+// 处理消息
+function processMessages(messages) {
+  const uncachedUserIds = collectUncachedUserIds(messages);
+
+  if (uncachedUserIds.length > 0) {
+    fetchUsersInfo(uncachedUserIds).then(() => {
+      messages.forEach(message => {
+        const userInfo = userCache.get(message.userId);
+        displayMessage(message, userInfo);
+      });
+    });
+  } else {
+    messages.forEach(message => {
+      const userInfo = userCache.get(message.userId);
+      displayMessage(message, userInfo);
+    });
+  }
+}
+
+// 示例消息
+const messages = [
+  { userId: '1', content: 'Hello!' },
+  { userId: '2', content: 'Hi there!' },
+  { userId: '1', content: 'How are you?' }
+];
+
+// 处理消息
+processMessages(messages);
 </script>
-
-<style scoped>
-
-</style>

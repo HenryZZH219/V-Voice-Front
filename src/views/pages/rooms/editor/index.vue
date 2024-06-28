@@ -4,10 +4,10 @@
 
     </div>
     <div class="margin_t-10 flex flex_a_i-flex-end">
-      <el-input ref="refTextarea" class="flex-item_f-1" v-model="text" type="textarea" rows="3" resize="none"
-        placeholder="善语结善缘，恶言伤人心~" maxlength="500" show-word-limit @keydown="textareaListener" />
+      <el-input ref="refTextarea" class="flex-item_f-1" v-model="messageSent.content" type="textarea" rows="3"
+        resize="none" placeholder="善语结善缘，恶言伤人心~" maxlength="500" show-word-limit @keydown="textareaListener" />
       <div class="send-wrap">
-        <el-icon class="cursor-pointer" size="20">
+        <el-icon class="cursor-pointer" @click="textSendHandle" size="20">
           <Promotion />
         </el-icon>
       </div>
@@ -17,21 +17,34 @@
 
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { ElMessage } from 'element-plus'
-const route = useRoute();
-const roomId = route.params.roomId;
+import {ref, reactive } from 'vue';
 
+import { MessageSent } from '@/types/user';
+import WebSocketManager from '@/service/websocket/websocketManager';
 
 const loading = ref(false)
 const refTextarea = ref()
-const text = ref('')
+const websocketManager = WebSocketManager.getInstance();
 
+
+const messageSent = reactive<MessageSent>({
+  content: '',
+  messageType: 'TEXT'
+});
+
+
+const sendMessage = () => {
+  websocketManager.sendMessage(messageSent);
+  messageSent.content = '';
+};
+
+const textSendHandle = () => {
+  sendMessage()
+}
 const textareaListener = (e) => {
   if (e.keyCode === 13 && !loading.value) {
     if (!e.shiftKey) {
-      console.log("123")
+      textSendHandle()
       e.preventDefault()
       return false
     }

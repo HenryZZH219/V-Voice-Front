@@ -30,14 +30,13 @@ export interface UserModel {
 }
 
 export interface MessageSent {
-    token: string;
     content: string;
     messageType: string;
 
 }
 
 export interface MessageReceive {
-    userID: number;
+    userId: number;
     content: string;
     messageType: string;
     createdAt: string;

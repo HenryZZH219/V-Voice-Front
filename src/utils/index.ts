@@ -12,3 +12,27 @@ export const mix = (color1: string, color2: string, weight: number = 0.5): strin
     }
     return color;
 };
+
+/**
+ * 日期格式化
+ * @param {*} date 日期
+ */
+export const dateFormat = (date) => {
+    const currentDate = dayjs()
+    const targetDate = dayjs(date)
+
+    const formats = [
+        { compare: 'YYYY-MM-DD', result: 'HH:mm' },
+        { compare: 'YYYY-MM', result: 'MM-DD' },
+        { compare: 'YYYY', result: 'YYYY-MM' },
+    ]
+
+    for (let i = 0; i < formats.length; i++) {
+        const { compare, result } = formats[i];
+        if (currentDate.format(compare) === targetDate.format(compare)) {
+            return targetDate.format(result)
+        }
+    }
+
+    return currentDate.format('YYYY-MM')
+}

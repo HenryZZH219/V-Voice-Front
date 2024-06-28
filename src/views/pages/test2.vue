@@ -30,7 +30,6 @@ const refTextarea = ref()
 
 let socket: WebSocket | null = null;
 const messageSent = reactive<MessageSent>({
-    token:localStorage.getItem('token'),
     content: '',
     messageType: 'TEXT'
 });
@@ -57,7 +56,8 @@ const handleClose = (event: CloseEvent) => {
 
 
 onMounted(() => {
-  const websocketUrl = 'ws://localhost:8501/chat/1';
+  const token = localStorage.getItem('token');
+  const websocketUrl = 'ws://localhost:8501/chat/1?token=' + token;
   socket = createWebSocket(websocketUrl, handleMessage, handleError, handleClose);
 });
 
