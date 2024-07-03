@@ -26,6 +26,17 @@ export const UpdatePasswd = (update) => {
     })
 }
 
+// 修改头像
+export const UpdateAvatar = (update) => {
+    return request({
+        url: '/user/updateAvatar',
+        method: 'put',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data:update
+    })
+}
 // 根据Ids获取用户信息
 export const GetUserInfoByIds = (ids) => {
     return request({

@@ -4,7 +4,14 @@
             <el-card class="user-profile" shadow="hover" :body-style="{ padding: '0px' }">
                 <div class="user-profile-bg"></div>
                 <div class="user-avatar-wrap">
-                    <el-avatar class="user-avatar" :size="120" :src="user.avatar" />
+                    <el-avatar class="user-avatar" :size="120">
+                        <template v-if="user.avatar">
+                            <img :src="user.avatar" alt="avatar">
+                        </template>
+                        <template v-else>
+                            {{ user.name }}
+                        </template>
+                    </el-avatar>
                 </div>
                 <div class="user-info">
                     <div class="info-name">{{ user.name }}</div>
@@ -43,7 +50,7 @@
                     <el-tab-pane name="label2" label="我的头像" class="user-tabpane">
                         <div class="crop-wrap" v-if="activeName === 'label2'">
                             <vueCropper ref="cropper" :img="imgSrc" :autoCrop="true" :centerBox="true" :full="true"
-                                mode="contain">
+                                mode="contain" :fixedNumber="[1, 1]">
                             </vueCropper>
                         </div>
                         <el-button class="crop-demo-btn" type="primary">选择图片
@@ -51,11 +58,11 @@
                         </el-button>
                         <el-button type="success" @click="saveAvatar">上传并保存</el-button>
                     </el-tab-pane>
-                    <el-tab-pane name="label3" label="修改密码" class="user-tabpane" >
+                    <el-tab-pane name="label3" label="修改密码" class="user-tabpane">
                         <el-form :model="paramPass" class="w500" label-position="top" :rules="rules">
-                                <el-form-item label="旧密码：" prop="oldPasswd">
-                                    <el-input type="password" v-model="paramPass.oldPasswd"></el-input>
-                                </el-form-item>
+                            <el-form-item label="旧密码：" prop="oldPasswd">
+                                <el-input type="password" v-model="paramPass.oldPasswd"></el-input>
+                            </el-form-item>
                             <el-form-item label="新密码：" prop="newPasswd">
                                 <el-input type="password" v-model="paramPass.newPasswd"></el-input>
                             </el-form-item>
@@ -93,8 +100,8 @@
                                 <el-input v-model="updateuser.phone" placeholder="请输入电话号码" maxlength="20"></el-input>
                             </el-form-item>
                             <el-form-item label="描述">
-                                <el-input v-model="updateuser.description" placeholder="请输入描述"
-                                    maxlength="255" :rows="4" type="textarea"></el-input>
+                                <el-input v-model="updateuser.description" placeholder="请输入描述" maxlength="255" :rows="4"
+                                    type="textarea"></el-input>
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" @click="saveBasicInfo">保存</el-button>
@@ -116,12 +123,15 @@ import avatar from '@/assets/img/img.jpg';
 import TabsComp from '../element/tabs.vue';
 import { ElMessage, type FormRules } from 'element-plus';
 import { UserModel } from '@/types/user';
-import { GetUserInfo, UpdateUser, UpdatePasswd } from '@/api/user'
+import { GetUserInfo, UpdateUser, UpdatePasswd, UpdateAvatar } from '@/api/user'
 import { Logout } from '@/api/index'
 
 onMounted(async () => {
     await fetchData();
+    avatarImg.value = user.avatar;
+    imgSrc.value = user.avatar;
 });
+
 
 const router = useRouter();
 const user = reactive<UserModel>({
@@ -153,7 +163,7 @@ const fetchData = async () => {
     } else {
         ElMessage.error(message)
     }
-    
+
     {
         updateuser.name = user.name;
         updateuser.email = user.email;
@@ -167,7 +177,7 @@ const saveBasicInfo = async () => {
     const { code, message, data } = (await UpdateUser(updateuser)).data
     if (code === 200) {
         await fetchData();
-        
+
         ElMessage.success("保存成功")
     } else {
         ElMessage.error(message)
@@ -195,13 +205,13 @@ const validateConfirmPassword = (rule: any, value: any, callback: any) => {
 }
 const rules: FormRules = {
 
-    newPasswd: [{ required: true, trigger: 'blur' ,message: '请输入新密码'}, {
+    newPasswd: [{ required: true, trigger: 'blur', message: '请输入新密码' }, {
         min: 8,
         max: 18,
         message: '密码长度位8-18个字符',
         trigger: 'blur'
     },],
-    oldPasswd: [{ required: true, trigger: 'blur' ,message: '请输入旧密码'}, {
+    oldPasswd: [{ required: true, trigger: 'blur', message: '请输入旧密码' }, {
         min: 8,
         max: 18,
         message: '密码长度位8-18个字符',
@@ -212,8 +222,8 @@ const rules: FormRules = {
 };
 //修改密码
 const onSubmit = async () => {
-    const { code, message, data } = (await UpdatePasswd(paramPass)).data 
-    
+    const { code, message, data } = (await UpdatePasswd(paramPass)).data
+
     if (code === 200) {
         await Logout();
         ElMessage.success("修改成功")
@@ -245,12 +255,34 @@ const setImage = (e: any) => {
     reader.readAsDataURL(file);
 };
 
-const cropImage = () => {
-    cropImg.value = cropper.value?.getCroppedCanvas().toDataURL();
-};
 
-const saveAvatar = () => {
-    avatarImg.value = cropImg.value;
+const saveAvatar = async () => {
+    if (cropper.value && cropper.value.getCropData) {
+        cropper.value.getCropData(async (data) => {
+            const { code, message, _ } = (await UpdateAvatar(data)).data;
+
+            if (code === 200) {
+                ElMessage.success("修改成功");
+                fetchData();
+            } else {
+                ElMessage.error(message);
+            }
+        });
+    } else {
+        console.error('cropper instance not ready or getCropData not available');
+    }
+    // cropImage();
+    // avatarImg.value = cropImg.value;
+    // console.error(avatarImg.value);
+    // const { code, message, data } = (await UpdateAvatar(avatarImg.value)).data;
+
+    // if (code === 200) {
+    //     await Logout();
+    //     ElMessage.success("修改成功");
+    //     fetchData();
+    // } else {
+    //     ElMessage.error(message);
+    // }
 };
 </script>
 
@@ -291,6 +323,12 @@ const saveAvatar = () => {
     border-radius: 50%;
     overflow: hidden;
     box-shadow: 0 7px 12px 0 rgba(62, 57, 107, 0.16);
+
+    /* 文字样式 */
+    font-size: 26px;
+    font-weight: bold;
+    text-transform: uppercase; /* 将文字转为大写 */
+    background-color: #409EFF; /* 默认的背景颜色，可以根据需要调整 */
 }
 
 .user-info {
