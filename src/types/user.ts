@@ -25,8 +25,8 @@ export interface UserModel {
     avatar: string;
     description: string;
     status: string;
-    create_time: string;
-    update_time: string;
+    // create_time: string;
+    // update_time: string;
 }
 
 export interface MessageSent {

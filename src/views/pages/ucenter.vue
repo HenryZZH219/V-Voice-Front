@@ -4,7 +4,7 @@
             <el-card class="user-profile" shadow="hover" :body-style="{ padding: '0px' }">
                 <div class="user-profile-bg"></div>
                 <div class="user-avatar-wrap">
-                    <el-avatar class="user-avatar" :size="120" :src="avatarImg" />
+                    <el-avatar class="user-avatar" :size="120" :src="user.avatar" />
                 </div>
                 <div class="user-info">
                     <div class="info-name">{{ user.name }}</div>
@@ -119,6 +119,9 @@ import { UserModel } from '@/types/user';
 import { GetUserInfo, UpdateUser, UpdatePasswd } from '@/api/user'
 import { Logout } from '@/api/index'
 
+onMounted(async () => {
+    await fetchData();
+});
 
 const router = useRouter();
 const user = reactive<UserModel>({
@@ -130,9 +133,9 @@ const user = reactive<UserModel>({
     phone: '',
     avatar: '',
     description: '',
-    status: '',
-    create_time: '',
-    update_time: ''
+    status: ''
+    // create_time: '',
+    // update_time: ''
 });
 
 const updateuser = reactive({
@@ -171,9 +174,7 @@ const saveBasicInfo = async () => {
     }
 }
 
-onMounted(async () => {
-    await fetchData();
-});
+
 
 //const name = localStorage.getItem('vuems_name');
 const name = user.phone;
@@ -224,8 +225,10 @@ const onSubmit = async () => {
 
 const activeName = ref('label1');
 
-const avatarImg = ref(avatar);
-const imgSrc = ref(avatar);
+const avatarImg = ref(user.avatar);
+const imgSrc = ref(user.avatar);
+
+
 const cropImg = ref('');
 const cropper: any = ref();
 
