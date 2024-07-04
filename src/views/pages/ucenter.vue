@@ -50,7 +50,7 @@
                     <el-tab-pane name="label2" label="我的头像" class="user-tabpane">
                         <div class="crop-wrap" v-if="activeName === 'label2'">
                             <vueCropper ref="cropper" :img="imgSrc" :autoCrop="true" :centerBox="true" :full="true"
-                                mode="contain" :fixedNumber="[1, 1]">
+                                mode="contain" :fixed="true" :fixedNumber="[1, 1]">
                             </vueCropper>
                         </div>
                         <el-button class="crop-demo-btn" type="primary">选择图片
@@ -119,12 +119,14 @@ import { useRouter } from 'vue-router';
 import { reactive, ref, onMounted } from 'vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
-import avatar from '@/assets/img/img.jpg';
+import avatar from '@/assets/img/img2.jpg';
 import TabsComp from '../element/tabs.vue';
 import { ElMessage, type FormRules } from 'element-plus';
 import { UserModel } from '@/types/user';
 import { GetUserInfo, UpdateUser, UpdatePasswd, UpdateAvatar } from '@/api/user'
 import { Logout } from '@/api/index'
+import { useUserStore } from '@/store/UserStore';
+const userStore = useUserStore();
 
 onMounted(async () => {
     await fetchData();
@@ -163,7 +165,7 @@ const fetchData = async () => {
     } else {
         ElMessage.error(message)
     }
-
+    userStore.addUser(user);
     {
         updateuser.name = user.name;
         updateuser.email = user.email;

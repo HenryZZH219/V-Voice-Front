@@ -64,7 +64,7 @@ const onRoutes = computed(() => {
 });
 
 const sidebar = useSidebarStore();
-console.log(onRoutes)
+// console.log(onRoutes)
 </script>
 
 <style scoped>

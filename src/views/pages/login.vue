@@ -47,7 +47,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import { LoginApi } from '@/api/index'
-
+const user = ref();
 
 interface LoginInfo {
     username: string;
@@ -92,6 +92,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (code === 200) {
         ElMessage.success('登录成功')
         token.value = data.token
+        user.value = data.sysUser
         // console.log(token.value)
         localStorage.setItem('token', token.value);
         if (checked.value) {
@@ -99,13 +100,15 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         } else {
             localStorage.removeItem('login-param');
         }
+        localStorage.setItem('user', JSON.stringify(user.value));
+        const keys = permiss.defaultList[param.username == 'admin' ? 'admin' : 'user'];
+        permiss.handleSet(keys);
         router.push('/');
     } else {
         ElMessage.error(message)
     }
-    localStorage.setItem('vuems_name', param.username);
-    const keys = permiss.defaultList[param.username == 'admin' ? 'admin' : 'user'];
-    permiss.handleSet(keys);
+    // localStorage.setItem('vuems_name', param.username);
+
     // router.push('/');
 
 };

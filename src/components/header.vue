@@ -32,11 +32,18 @@
                     </el-tooltip>
                 </div>
                 <!-- 用户头像 -->
-                <el-avatar class="user-avator" :size="30" :src="imgurl" />
+                <el-avatar class="user-avatar" :size="30">
+                    <template v-if="user.avatar">
+                        <img :src="user.avatar" alt="avatar">
+                    </template>
+                    <template v-else>
+                        {{ user.name }}
+                    </template>
+                </el-avatar>
                 <!-- 用户名下拉菜单 -->
                 <el-dropdown class="user-name" trigger="click" @command="handleCommand">
                     <span class="el-dropdown-link">
-                        {{ username }}
+                        {{ user.name }}
                         <el-icon class="el-icon--right">
                             <arrow-down />
                         </el-icon>
@@ -59,13 +66,15 @@
     </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useSidebarStore } from '../store/sidebar';
 import { useRouter } from 'vue-router';
 import imgurl from '../assets/img/img.jpg';
 import { Logout } from '@/api/index'
+const user = computed(() => {
+    return JSON.parse(localStorage.getItem('user'));
+})
 
-const username: string | null = localStorage.getItem('vuems_name');
 const message: number = 2;
 
 const sidebar = useSidebarStore();
@@ -197,5 +206,15 @@ const setFullScreen = () => {
 
 .el-dropdown-menu__item {
     text-align: center;
+}
+
+.user-avatar {
+
+    /* 文字样式 */
+    /* font-size: 26px; */
+    font-weight: bold;
+    text-transform: uppercase; /* 将文字转为大写 */
+    background-color: #409EFF; /* 默认的背景颜色，可以根据需要调整 */
+    letter-spacing: 5px; /* 调整字符间距 */
 }
 </style>
