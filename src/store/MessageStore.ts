@@ -54,7 +54,7 @@ export const useMessageStore = defineStore('messages', {
 
     addMessage(newMessage) {
       try {
-        // console.log('Adding new message:', newMessage);
+        console.log('Adding new message:', newMessage);
         // Assuming newMessage is an object with the required fields
         this.messages.push(newMessage);
       } catch (error) {

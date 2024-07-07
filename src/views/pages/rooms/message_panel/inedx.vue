@@ -105,7 +105,7 @@ onMounted(async () => {
   websocketManager.addCloseHandler(handleClose);
   websocketManager.addErrorHandler(handleError);
   // const websocketManager = WebSocketManager.getInstance();
-
+  scrollToBottom();
 });
 const handleMessage = (event: MessageEvent) => {
   const data = JSON.parse(event.data);
@@ -144,10 +144,16 @@ const scrollToBottom = () => {
 // })
 
 watch(messages, () => {
+  
+  // scrollToBottom()
   if (refScrollbar.value) {
+    console.log("消息更新")
     nextTick(() => {
       const difference = refInner.value.clientHeight - refScrollbar.value.wrapRef.clientHeight - refScrollbar.value.wrapRef.scrollTop
-      if (difference < refScrollbar.value.wrapRef.clientHeight) {
+      console.log(difference, refScrollbar.value.wrapRef.clientHeight)
+      if (difference > refScrollbar.value.wrapRef.clientHeight) {
+        
+        
         scrollToBottom()
       }
     })
