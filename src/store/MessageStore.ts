@@ -1,25 +1,16 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import { useUserStore } from '@/store/UserStore';
-import { GetMessageByRoomId } from '@/api/message'
+import { GetMessageByRoomId, GetMessageByRoomIdByPage } from '@/api/message'
 export const useMessageStore = defineStore('messages', {
   state: () => ({
     messages: [
-      // { id: 1, nickname: 'John', email: 'john@example.com', text: 'Hello!' },
-      // { id: 2, nickname: 'Alice', email: 'alice@example.com', text: 'Hi there!' },
-      // { id: 3, nickname: 'Bob', email: 'bob@example.com', text: 'Hey!' },
-      // { id: 4, nickname: 'Jan', email: 'Jan@example.com', text: 'Hey~!' }
-    ]
+    ],
+    page: 1,
+    size: 10,
+    hasMore: true,
   }),
   actions: {
-    async fetchMessages() {
-      try {
-        const response = await axios.get('https://api.example.com/messages'); // 替换为你的后端API
-        this.messages = [...this.messages, ...response.data];
-      } catch (error) {
-        console.error('Failed to fetch messages:', error);
-      }
-    },
 
     async fetchMessagesByRoomId(roomId) {
       console.log("loading message")
@@ -50,13 +41,47 @@ export const useMessageStore = defineStore('messages', {
       } else {
         console.log("Failed to fetch messages:"+message);
       }
+      this.messages.sort((a, b) => a.messageId - b.messageId);
+      
     },
 
-    addMessage(newMessage) {
+    async fetchMessagesByRoomIdByPage(roomId) {
+      if (!this.hasMore) return;
+      console.log("loading message by page")
+      const messageStore = useMessageStore();
+      const userStore = useUserStore();
+      // messageStore.InitMessage();
+      const { code, message, data } = (await GetMessageByRoomIdByPage(roomId, this.page, this.size)).data
+      // console.log(data)
+      this.messages = [...data.list, ...this.messages];
+      this.messages.sort((a, b) => a.messageId - b.messageId);
+      if (code === 200) {
+        data.list.forEach((dataitr) => {
+          if(userStore.userExists(dataitr.userId) === false) {
+            userStore.initUser(dataitr.userId);
+          }
+        });
+        await userStore.updateAllUsersInfo();
+      } else {
+        console.log("Failed to fetch messages:"+message);
+      }
+      
+      this.page = this.page+1;
+      this.hasMore = data.hasNextPage;
+    },
+
+    async addMessage(newMessage) {
       try {
+        const userStore = useUserStore();
+        if(!userStore.userExists(newMessage.userId)) {
+          console.log("刷新用户信息");
+          userStore.initUser(newMessage.userId);
+          await userStore.updateAllUsersInfo();
+        }
         console.log('Adding new message:', newMessage);
         // Assuming newMessage is an object with the required fields
         this.messages.push(newMessage);
+        
       } catch (error) {
         console.error('Failed to add message:', error);
       }
@@ -64,6 +89,10 @@ export const useMessageStore = defineStore('messages', {
 
     InitMessage() {
       this.messages = [];
+    },
+
+    OrderMessage() {
+      this.messages = this.messages.slice().sort((a, b) => a.messageId - b.messageId);
     }
   }
 });

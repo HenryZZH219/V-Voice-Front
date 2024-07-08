@@ -13,6 +13,7 @@ defineProps({
 
 <style lang="scss" scoped>
 .text-message {
+  color: var(--el-color-info-light-3);
   margin: 0;
   white-space: pre-wrap;
   font-family: unset;
@@ -21,6 +22,7 @@ defineProps({
   border-radius: var(--el-border-radius-round);
   border-top-left-radius: 2px;
   max-width: 70%;
+  
 }
 .reverse .text-message {
   border-top-left-radius: var(--el-border-radius-round);

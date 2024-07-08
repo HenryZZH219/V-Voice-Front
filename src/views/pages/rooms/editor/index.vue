@@ -5,7 +5,7 @@
     </div>
     <div class="margin_t-10 flex flex_a_i-flex-end">
       <el-input ref="refTextarea" class="flex-item_f-1" v-model="messageSent.content" type="textarea" rows="3"
-        resize="none" placeholder="善语结善缘，恶言伤人心~" maxlength="500" show-word-limit @keydown="textareaListener" />
+        resize="none" placeholder="善语结善缘，恶言伤人心~" maxlength="500" @keydown="textareaListener" />
       <div class="send-wrap">
         <el-icon class="cursor-pointer" @click="textSendHandle" size="20">
           <Promotion />
@@ -52,7 +52,7 @@ const textareaListener = (e) => {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .editor {
   padding: 10px 15px 10px 15px;
 }
@@ -70,8 +70,11 @@ const textareaListener = (e) => {
 }
 
 ::v-deep .el-textarea__inner {
-  padding: 0;
+  /* padding: 0; */
   box-shadow: none;
   border: none;
+  background-color: var(--card-background-color);
+  color:var(--el-color-info-light-3);
 }
+
 </style>

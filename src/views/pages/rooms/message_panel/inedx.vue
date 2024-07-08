@@ -7,18 +7,18 @@
       <div class="header flex_a_i-center">
         <span class="margin_l-10">{{ name }}</span>
       </div>
-      <el-scrollbar ref="refScrollbar" @scroll="scrollHandle">
+      <el-scrollbar ref="refScrollbar"  :always="true" @scroll="scrollHandle">
         <div ref="refInner" class="flex-item_f-1 padding-15">
-          <Loading class="loading" text="消息加载中" v-show="loading"></Loading>
-          <div class="message-wrap" v-for="item in messages">
-            <Message :message="item" :reverse="false" :key="item.messageId" v-if="loading === false">
+          <!-- <Loading class="loading" text="消息加载中" v-show="loading"></Loading> -->
+          <div class="message-wrap" v-for="item in messages" :key="item.messageId">
+            <Message :message="item" :reverse="item.userId === userId" :key="item.messageId" v-if="loading === false">
             </Message>
           </div>
         </div>
       </el-scrollbar>
 
     </template>
-
+    <!-- <el-button @click = "show">Default</el-button> -->
     <Editor class="editor"></Editor>
     <ApplyFriendDialog ref="refApplyFriendDialog"></ApplyFriendDialog>
   </div>
@@ -27,7 +27,6 @@
 <script setup lang="ts">
 //:key="item.id"
 import Editor from '../editor/index.vue';
-
 import Message from '../messages/index.vue';
 import { useMessageStore } from '@/store/MessageStore';
 import { MessageSent, MessageReceive } from '@/types/user';
@@ -39,27 +38,13 @@ import { useRoute } from 'vue-router';
 
 const name = "聊天"
 const loading = ref(true);
-const parentLoaded = ref(false);
 const messageStore = useMessageStore();
 // const messages = messageStore.messages;
-const messages = computed(() => messageStore.messages);
-//消息获取并获得用户信息
-// const newMessage = ref({
-//   id: null,  // Assuming you generate id in some way, e.g., a UUID or from the server
-//   nickname: '',
-//   email: '',
-//   text: ''
-// });
-
-
-const messageReceive = ref<MessageReceive[]>([]);
-//载入初始数据
-// const fetchMessage = async () => {
-//   console.log("loading message")
-
-//   const messageStore = useMessageStore();
-//   const userStore = useUserStore();
-//   messageStore.InitMessage();
+const messages = computed(() => {
+  // return messageStore.messages.slice().sort((a, b) => a.messageId - b.messageId);
+  return messageStore.messages
+});
+const userId = JSON.parse(localStorage.getItem('user')).id;
 const router = useRoute();
 const roomId = router.params.roomId;
 
@@ -74,27 +59,10 @@ const roomId = router.params.roomId;
 //   */
 //   const { code, message, data } = (await GetMessageByRoomId(roomId)).data
 
-//   if (code === 200) {
-//     data.forEach((dataitr) => {
-//       messageStore.addMessage(dataitr);
-//       if(userStore.userExists(dataitr.userId) === false) {
-//         userStore.initUser(dataitr.userId);
-//       }
-//     });
-//     await userStore.updateAllUsersInfo();
-//     parentLoaded.value = true;
-//   } else {
-//     ElMessage.error(message)
-//   }
-// }
-
-// onBeforeMount(async () => {
-//   await fetchMessage()
-// });
 
 onMounted(async () => {
   // fetchMessage()
-  await useMessageStore().fetchMessagesByRoomId(roomId);
+  await useMessageStore().fetchMessagesByRoomIdByPage(roomId);
   loading.value = false;
 
   const websocketManager = WebSocketManager.getInstance();
@@ -104,12 +72,29 @@ onMounted(async () => {
   websocketManager.addMessageHandler(handleMessage);
   websocketManager.addCloseHandler(handleClose);
   websocketManager.addErrorHandler(handleError);
-  // const websocketManager = WebSocketManager.getInstance();
-  scrollToBottom();
+
+  nextTick(() => {
+    scrollToBottom()
+  })
 });
 const handleMessage = (event: MessageEvent) => {
   const data = JSON.parse(event.data);
-  messageStore.addMessage(data);
+  if (data.messageType === "PING_PONG") {
+    if (data.content === "ping") {
+      const websocketManager = WebSocketManager.getInstance();
+      const messageSent = reactive<MessageSent>({
+        content: 'pong',
+        messageType: 'PING_PONG'
+      });
+      websocketManager.sendMessage(messageSent);
+      console.log("pong")
+    }
+
+  }
+  else {
+    messageStore.addMessage(data);
+  }
+
 };
 
 
@@ -144,38 +129,42 @@ const scrollToBottom = () => {
 // })
 
 watch(messages, () => {
-  
+
   // scrollToBottom()
   if (refScrollbar.value) {
-    console.log("消息更新")
+    // console.log("消息更新")
     nextTick(() => {
       const difference = refInner.value.clientHeight - refScrollbar.value.wrapRef.clientHeight - refScrollbar.value.wrapRef.scrollTop
-      console.log(difference, refScrollbar.value.wrapRef.clientHeight)
-      if (difference > refScrollbar.value.wrapRef.clientHeight) {
-        
-        
+      // console.log(difference, refScrollbar.value.wrapRef.clientHeight)
+      if (difference < refScrollbar.value.wrapRef.clientHeight) {
         scrollToBottom()
       }
     })
+
   }
 }, { deep: true })
 
 const scrollHandle = async (scroll) => {
-  scrollTop.value = scroll.scrollTop
-  if (scroll.scrollTop < 1) { //&& !loading.value && !finished.value
-    console.log("toptoptop")
-    // loading.value = true
-    // // setTimeout(async () => {
-    //   const height = refInner.value.clientHeight
-    //   // await getData()
-    //   const top = refInner.value.clientHeight - height
-    //   scrollTop.value = top
-    //   refScrollbar.value.setScrollTop(top)
-    // // }, 1000)
+  console.log("top", scroll.scrollTop)
+  // scrollTop.value = scroll.scrollTop
+  if (scroll.scrollTop < 1 && !loading.value) { //&& !loading.value && !finished.value
+    const scrollHeight = refInner.value.clientHeight;
+    loading.value = true;
+    await useMessageStore().fetchMessagesByRoomIdByPage(roomId);
+    loading.value = false;
+    nextTick(() => {
+      const newHeight = refInner.value.clientHeight;
+      refScrollbar.value.setScrollTop(newHeight - scrollHeight)
+    })
+
+
   }
 
 }
 
+const show = () => {
+  console.log(refInner.value.clientHeight, refScrollbar.value.wrapRef.clientHeight, refScrollbar.value.wrapRef.scrollTop)
+}
 </script>
 
 
