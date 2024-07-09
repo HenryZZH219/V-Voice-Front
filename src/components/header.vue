@@ -32,7 +32,7 @@
                     </el-tooltip>
                 </div>
                 <!-- 用户头像 -->
-                <el-avatar class="user-avatar" :size="30">
+                <el-avatar shape="square" class="user-avatar" :size="30">
                     <template v-if="user.avatar">
                         <img :src="user.avatar" alt="avatar">
                     </template>
@@ -43,7 +43,7 @@
                 <!-- 用户名下拉菜单 -->
                 <el-dropdown class="user-name" trigger="click" @command="handleCommand">
                     <span class="el-dropdown-link">
-                        {{ user.name }}
+                        {{"      "+user.name }}
                         <el-icon class="el-icon--right">
                             <arrow-down />
                         </el-icon>
@@ -216,5 +216,6 @@ const setFullScreen = () => {
     text-transform: uppercase; /* 将文字转为大写 */
     background-color: #409EFF; /* 默认的背景颜色，可以根据需要调整 */
     letter-spacing: 5px; /* 调整字符间距 */
+    margin-right: 10px;
 }
 </style>

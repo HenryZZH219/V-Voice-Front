@@ -18,14 +18,13 @@
       </el-scrollbar>
 
     </template>
-    <!-- <el-button @click = "show">Default</el-button> -->
     <Editor class="editor"></Editor>
     <ApplyFriendDialog ref="refApplyFriendDialog"></ApplyFriendDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-//:key="item.id"
+
 import Editor from '../editor/index.vue';
 import Message from '../messages/index.vue';
 import { useMessageStore } from '@/store/MessageStore';
@@ -41,27 +40,14 @@ const loading = ref(true);
 const messageStore = useMessageStore();
 // const messages = messageStore.messages;
 const messages = computed(() => {
-  // return messageStore.messages.slice().sort((a, b) => a.messageId - b.messageId);
   return messageStore.messages
 });
 const userId = JSON.parse(localStorage.getItem('user')).id;
 const router = useRoute();
 const roomId = router.params.roomId;
 
-//   //返回的data格式：
-//   /*
-//     Integer messageId;
-//     Integer roomId;
-//     Integer userId;
-//     String content;
-//     String messageType;
-//     Timestamp createdAt;
-//   */
-//   const { code, message, data } = (await GetMessageByRoomId(roomId)).data
-
 
 onMounted(async () => {
-  // fetchMessage()
   await useMessageStore().fetchMessagesByRoomIdByPage(roomId);
   loading.value = false;
 
@@ -106,8 +92,6 @@ const handleClose = (event: CloseEvent) => {
   console.log('WebSocket closed: ', event);
 };
 
-
-const scrollTop = ref(0)
 const refScrollbar = ref()
 const refInner = ref()
 /**
@@ -118,19 +102,7 @@ const scrollToBottom = () => {
   refScrollbar.value.setScrollTop(scrollTop)
 }
 
-// watch(active, async () => {
-//   finished.value = false
-//   if (!messages.value.length) {
-//     await getData()
-//   }
-//   nextTick(() => {
-//     scrollToBottom()
-//   })
-// })
-
 watch(messages, () => {
-
-  // scrollToBottom()
   if (refScrollbar.value) {
     // console.log("消息更新")
     nextTick(() => {
@@ -162,11 +134,7 @@ const scrollHandle = async (scroll) => {
 
 }
 
-const show = () => {
-  console.log(refInner.value.clientHeight, refScrollbar.value.wrapRef.clientHeight, refScrollbar.value.wrapRef.scrollTop)
-}
 </script>
-
 
 <style lang="scss" scoped>
 .message-panel {
