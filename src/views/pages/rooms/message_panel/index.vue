@@ -1,6 +1,6 @@
 <template>
 
-  <div class="message-panel flex flex_d-column">
+  <div class="message-panel flex flex_d-column"  :key = "roomId.value">
 
     <template v-if=true>
 
@@ -43,18 +43,25 @@ const messages = computed(() => {
   return messageStore.messages
 });
 const userId = JSON.parse(localStorage.getItem('user')).id;
-const router = useRoute();
-const roomId = router.params.roomId;
+const route = useRoute();
+const roomId = computed(() => route.params.roomId);
+
+
+onUnmounted(() => {
+  WebSocketManager.getInstance().disconnect();
+});
 
 
 onMounted(async () => {
-  await useMessageStore().fetchMessagesByRoomIdByPage(roomId);
+  console.log("messagepanel onmounted")
+  console.log(roomId.value)
+  await useMessageStore().fetchMessagesByRoomIdByPage(roomId.value);
   loading.value = false;
 
   const websocketManager = WebSocketManager.getInstance();
   const token = localStorage.getItem('token');
-  const websocketUrl = `ws://localhost:8501/chat/${roomId}?token=${token}`;
-  websocketManager.connect(websocketUrl);
+  const websocketUrl = `ws://localhost:8501/chat/${roomId.value}?token=${token}`;
+  await websocketManager.connect(websocketUrl);
   websocketManager.addMessageHandler(handleMessage);
   websocketManager.addCloseHandler(handleClose);
   websocketManager.addErrorHandler(handleError);
@@ -118,11 +125,12 @@ watch(messages, () => {
 
 const scrollHandle = async (scroll) => {
   console.log("top", scroll.scrollTop)
+  // console.log(roomId.value)
   // scrollTop.value = scroll.scrollTop
   if (scroll.scrollTop < 1 && !loading.value) { //&& !loading.value && !finished.value
     const scrollHeight = refInner.value.clientHeight;
     loading.value = true;
-    await useMessageStore().fetchMessagesByRoomIdByPage(roomId);
+    await useMessageStore().fetchMessagesByRoomIdByPage(roomId.value);
     loading.value = false;
     nextTick(() => {
       const newHeight = refInner.value.clientHeight;

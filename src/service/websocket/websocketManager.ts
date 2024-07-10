@@ -19,10 +19,42 @@ class WebSocketManager {
     return WebSocketManager.instance;
   }
 
-  public connect(url: string): void {
+  // public connect(url: string): void {
+  //   if (this.socket) {
+  //     return;
+  //   }
+
+  //   this.socket = new WebSocket(url);
+
+  //   this.socket.addEventListener('message', (event) => {
+  //     this.messageHandlers.forEach((handler) => handler(event));
+  //   });
+
+  //   this.socket.addEventListener('error', (error) => {
+  //     this.errorHandlers.forEach((handler) => handler(error));
+  //   });
+
+  //   this.socket.addEventListener('close', (event) => {
+  //     this.closeHandlers.forEach((handler) => handler(event));
+  //     this.socket = null;
+  //   });
+  // }
+
+  // public disconnect(): void {
+  //   if (this.socket) {
+  //     this.socket.close();
+  //     this.socket = null;
+  //   }
+  // }
+
+  public async connect(url: string): Promise<void> {
     if (this.socket) {
-      return;
+      await this.disconnect(); // 等待旧的 WebSocket 关闭
     }
+
+    this.messageHandlers = [];
+    this.errorHandlers = [];
+    this.closeHandlers = [];
 
     this.socket = new WebSocket(url);
 
@@ -40,11 +72,19 @@ class WebSocketManager {
     });
   }
 
-  public disconnect(): void {
-    if (this.socket) {
-      this.socket.close();
-      this.socket = null;
-    }
+  public disconnect(): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.socket) {
+        this.socket.addEventListener('close', () => { 
+          resolve();
+        });
+        this.socket.close();
+        this.socket = null;
+        // console.log("disconnect")
+      } else {
+        resolve();
+      }
+    });
   }
 
   public sendMessage(message: any): void {
@@ -79,6 +119,7 @@ class WebSocketManager {
   public removeCloseHandler(handler: CloseHandler): void {
     this.closeHandlers = this.closeHandlers.filter(h => h !== handler);
   }
+
 }
 
 export default WebSocketManager;

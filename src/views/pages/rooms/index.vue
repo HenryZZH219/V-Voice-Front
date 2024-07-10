@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :key="route.params.roomId">
     {{ roomId }}
     <div class="conversation flex">
       <el-scrollbar class="width-280 padding-n-10">
@@ -15,19 +15,22 @@
 <script setup lang="ts">
 import MessagePanel from './message_panel/index.vue'
 import ChatroomPanel from './chatroom_panel/index.vue'
+
 import { useRoute } from 'vue-router';
-import WebSocketManager from '@/service/websocket/websocketManager';
-import {onUnmounted, computed} from 'vue';
+import {onUnmounted, computed, onMounted} from 'vue';
 import { useRoomStore } from '@/store/RoomStore';
+import { useRouter } from 'vue-router';
 const route = useRoute();
-const roomId = route.params.roomId;
+const roomId = computed(() => route.params.roomId);
 const RoomStore = useRoomStore();
 const roomList = computed(() => RoomStore.rooms)
-onUnmounted(() => {
-  WebSocketManager.getInstance().disconnect();
-});
-
-
+const router = useRouter();
+if(RoomStore.currentActive!==roomId.value){
+  router.push(`/chats/${RoomStore.currentActive}`);
+}
+onMounted(async () => {
+  await RoomStore.fetchRooms();
+} ) 
 
 
 </script>

@@ -89,6 +89,7 @@ export const useMessageStore = defineStore('messages', {
 
     InitMessage() {
       this.messages = [];
+      this.hasMore = true;
     },
 
     OrderMessage() {

@@ -1,15 +1,20 @@
 <template>
     <el-card :class="{'active-room': room.roomId === activeId, 'inactive-room': room.roomId !== activeId}" shadow="hover" @click="clickHandle ">
-        <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
-            alt="Room Avatar" class="room-avatar-background" />
+        <img :src="room.avatar"
+            :alt="room.roomName" class="room-avatar-background" />
         <div class="room-name-overlay">
             {{ room.roomName }}
         </div>
     </el-card>
 </template>
 
-<script setup>
-
+<script setup lang = 'ts'>
+import { useRoomStore } from '@/store/RoomStore';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useMessageStore } from '@/store/MessageStore';
+import WebSocketManager from '@/service/websocket/websocketManager';
+const router = useRouter();
 const props = defineProps({
     room: {
         type: Object,
@@ -17,29 +22,18 @@ const props = defineProps({
     },
 })
 
-const activeId = 1
-
-//   const active = computed({
-//     get: () => conversationStore.active || {},
-//     set: (value) => conversationStore.setActive(value)
-//   })
-const clickHandle = () => {
-    console.log("click")
+const activeId = computed(() => useRoomStore().currentActive)
+const clickHandle = async() => {
+    if(props.room.roomId!==activeId.value) {
+        console.log("clikclick")
+        useRoomStore().setActiveId(props.room.roomId);
+        router.push(`/chats/${props.room.roomId}`);
+        WebSocketManager.getInstance().disconnect();
+    }
 }
 </script>
 
 <style lang="scss" scoped>
-// .room-card {
-//     ::v-deep(.el-badge__content.is-fixed) {
-//         right: calc(100% - 40px - var(--el-badge-size));
-//         transform: translateY(20%)
-//     }
-
-//     &+& {
-//         margin-top: 4px;
-//     }
-
-// }
 
 .active-room {
     // background-color: var(--card-background-color);
