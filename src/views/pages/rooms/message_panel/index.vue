@@ -1,6 +1,6 @@
 <template>
 
-  <div class="message-panel flex flex_d-column"  :key = "roomId.value">
+  <div class="message-panel flex flex_d-column">
 
     <template v-if=true>
 
@@ -32,7 +32,7 @@ import { MessageSent, MessageReceive } from '@/types/user';
 import { onMounted, ref, onUnmounted, reactive, computed, watch, nextTick, onBeforeMount } from 'vue';
 import WebSocketManager from '@/service/websocket/websocketManager';
 import { useRoute } from 'vue-router';
-
+import { useRoomStore } from '@/store/RoomStore';
 
 
 const name = "聊天"
@@ -53,9 +53,7 @@ onUnmounted(() => {
 
 
 onMounted(async () => {
-  console.log("messagepanel onmounted")
-  console.log(roomId.value)
-  await useMessageStore().fetchMessagesByRoomIdByPage(roomId.value);
+  
   loading.value = false;
 
   const websocketManager = WebSocketManager.getInstance();
@@ -83,6 +81,8 @@ const handleMessage = (event: MessageEvent) => {
       console.log("pong")
     }
 
+  }else if(data.messageType === "SysMsg"){
+    useRoomStore().fetchRooms();
   }
   else {
     messageStore.addMessage(data);

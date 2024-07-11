@@ -10,22 +10,30 @@ export const useRoomStore = defineStore('rooms', {
             //     roomName: '世界频道',
             //     avatar: 'http://124.70.216.41:9000/vvoice/20240704/bafe0d5855e443b3b8de35f9b0881fb7',
             //     description: 'This is the general room.',
+            //     onlineUsers:[],
             // },
             // {
             //     roomId: 2,
             //     roomName: '瓦',
             //     avatar: 'http://124.70.216.41:9000/vvoice/20240704/bafe0d5855e443b3b8de35f9b0881fb7',
             //     description: 'Room for development discussions.',
+            //     onlineUsers:[],
             // },
             // {
             //     roomId: 3,
             //     roomName: '英雄联盟英雄联盟英雄联盟',
             //     avatar: 'http://124.70.216.41:9000/vvoice/20240704/bafe0d5855e443b3b8de35f9b0881fb7',
             //     description: 'Room for design discussions.',
+            //     onlineUsers:[],
             // },
         ],
         currentActive: 1,
     }),
+    getters: {
+        getRoomById: (state) => (roomId) => {
+            return state.rooms.find(room => room.roomId === roomId);
+        },
+    },
     actions: {
         async fetchRooms() {
             console.log("loading rooms info");
@@ -42,7 +50,7 @@ export const useRoomStore = defineStore('rooms', {
 
         },
 
-        setActiveId(ActiveId:number){
+        setActiveId(ActiveId: number) {
             this.currentActive = ActiveId;
             useMessageStore().InitMessage();
             useMessageStore().fetchMessagesByRoomId(ActiveId);

@@ -57,6 +57,15 @@ export const useUserStore = defineStore('userStore', {
             // 3. 更新用户信息到 store 中
 
 
+        },
+
+        async getUserOrDefault(userId) {
+            if(this.userExists(userId))
+                return this.getUserById(userId);
+            this.initUser(userId);
+            await this.updateAllUsersInfo();
+            const user =  this.getUserById(userId)
+            return user;
         }
     }
 });
