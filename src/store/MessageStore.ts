@@ -47,27 +47,33 @@ export const useMessageStore = defineStore('messages', {
 
     async fetchMessagesByRoomIdByPage(roomId) {
       if (!this.hasMore) return;
-      console.log("loading message by page")
-      const messageStore = useMessageStore();
+      console.log("loading message by page", roomId)
+      // const messageStore = useMessageStore();
       const userStore = useUserStore();
       // messageStore.InitMessage();
       const { code, message, data } = (await GetMessageByRoomIdByPage(roomId, this.page, this.size)).data
       // console.log(data)
-      this.messages = [...data.list, ...this.messages];
-      this.messages.sort((a, b) => a.messageId - b.messageId);
+      
+      // this.messages.sort((a, b) => a.messageId - b.messageId);
       if (code === 200) {
+        console.log('data.list:', data.list);
+        console.log('this.messages:', this.messages);
+
+        this.messages = [...data.list, ...this.messages];
+        this.messages.sort((a, b) => a.messageId - b.messageId);
         data.list.forEach((dataitr) => {
           if(userStore.userExists(dataitr.userId) === false) {
             userStore.initUser(dataitr.userId);
           }
         });
         await userStore.updateAllUsersInfo();
+        this.page = this.page+1;
+        this.hasMore = data.hasNextPage;
       } else {
         console.log("Failed to fetch messages:"+message);
       }
       
-      this.page = this.page+1;
-      this.hasMore = data.hasNextPage;
+      
     },
 
     async addMessage(newMessage) {
@@ -88,8 +94,10 @@ export const useMessageStore = defineStore('messages', {
     },
 
     InitMessage() {
-      this.messages = [];
       this.hasMore = true;
+      this.messages = [];
+      this.page = 1;
+      
     },
 
     OrderMessage() {

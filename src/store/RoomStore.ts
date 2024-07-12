@@ -39,10 +39,6 @@ export const useRoomStore = defineStore('rooms', {
             console.log("loading rooms info");
             const { code, message, data } = (await GetRoomsInfo()).data
             if (code === 200) {
-                // this.rooms = data.map(room => ({
-                //     ...room,
-                //     onlineUsers: [],
-                // }));
                 this.rooms = data
             } else {
                 console.log("Failed to fetch rooms info:" + message);
@@ -51,9 +47,10 @@ export const useRoomStore = defineStore('rooms', {
         },
 
         setActiveId(ActiveId: number) {
+            
+            // useMessageStore().InitMessage();
+            // await useMessageStore().fetchMessagesByRoomIdByPage(ActiveId);
             this.currentActive = ActiveId;
-            useMessageStore().InitMessage();
-            useMessageStore().fetchMessagesByRoomId(ActiveId);
         },
 
         // async updateOnlineUsers(roomId, userIds) {

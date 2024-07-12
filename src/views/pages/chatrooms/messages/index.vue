@@ -1,6 +1,5 @@
 <template>
   <div class="message flex" :class="reverse ? 'reverse' : ''">
-    <!-- <el-avatar :src="user.avatar" :alt="user.name" :size="40" @click="avatarClickHandle"></el-avatar> -->
     <el-avatar class="user-avatar" :size="40">
       <template v-if="user.avatar">
         <img :src="user.avatar" alt="avatar">
@@ -23,10 +22,6 @@
 <script setup>
 import TextMessage from './text-message/index.vue'
 import { useUserStore } from '@/store/UserStore';
-//   import { dateFormat } from '@/utils/index' 
-
-
-//   const emits = defineEmits(['avatar-click'])
 
 const props = defineProps({
   message: {
@@ -41,7 +36,8 @@ const props = defineProps({
 
 const userStore = useUserStore();
 const user = userStore.getUserById(props.message.userId);
-// const date = new Date(props.message.createdAt);
+
+// console.log(message)
 const date = new Date(props.message.createdAt);
 const formattedDate = date.toLocaleDateString('zh-HK', { year: 'numeric', month: 'short', day: 'numeric' });
 const formattedTime = date.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });

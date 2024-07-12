@@ -23,15 +23,15 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard.vue'),
             },
-            {
-                path: '/chats/:roomId',
-                name:'聊天房',
-                meta: {
-                    title: '聊天房',
-                    noAuth: true,
-                },
-                component: () => import(/* webpackChunkName: "test" */ '../views/pages/rooms/index.vue'),
-            },
+            // {
+            //     path: '/chats/:roomId',
+            //     name:'聊天房',
+            //     meta: {
+            //         title: '聊天房',
+            //         noAuth: true,
+            //     },
+            //     component: () => import(/* webpackChunkName: "test" */ '../views/pages/rooms/index.vue'),
+            // },
             {
                 path: '/chats/addRoom',
                 name:'添加房间',
@@ -42,13 +42,13 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "test" */ '../views/pages/addRoom.vue'),
             },
             {
-                path: '/chats/test',
+                path: '/test',
                 name:'测试',
                 meta: {
                     title: '测试',
                     noAuth: true,
                 },
-                component: () => import(/* webpackChunkName: "test" */ '../views/pages/test2.vue'),
+                component: () => import(/* webpackChunkName: "test" */ '../views/pages/chatrooms/index.vue'),
             },
             {
                 path: '/system-user',

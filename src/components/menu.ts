@@ -48,7 +48,7 @@ export const menuData: Menus[] = [
             {
                 id: '92',
                 pid: '2',
-                index: '/chats/test',
+                index: '/test',
                 title: '测试',
             },
         ],

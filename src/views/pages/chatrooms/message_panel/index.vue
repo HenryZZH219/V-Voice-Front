@@ -1,6 +1,6 @@
 <template>
 
-  <div class="message-panel flex flex_d-column" :key="useRoomStore().currentActive">
+  <div class="message-panel flex flex_d-column">
 
     <template v-if=true>
 
@@ -9,7 +9,6 @@
       </div>
       <el-scrollbar ref="refScrollbar"  :always="true" @scroll="scrollHandle">
         <div ref="refInner" class="flex-item_f-1 padding-15">
-          <!-- <Loading class="loading" text="消息加载中" v-show="loading"></Loading> -->
           <div class="message-wrap" v-for="item in messages" :key="item.messageId">
             <Message :message="item" :reverse="item.userId === userId" :key="item.messageId" v-if="loading === false">
             </Message>
@@ -31,21 +30,17 @@ import { useMessageStore } from '@/store/MessageStore';
 import { MessageSent, MessageReceive } from '@/types/user';
 import { onMounted, ref, onUnmounted, reactive, computed, watch, nextTick, onBeforeMount } from 'vue';
 import WebSocketManager from '@/service/websocket/websocketManager';
-import { useRoute } from 'vue-router';
 import { useRoomStore } from '@/store/RoomStore';
 
 
 const name = "聊天"
 const loading = ref(true);
 const messageStore = useMessageStore();
-// const messages = messageStore.messages;
 const messages = computed(() => {
   return messageStore.messages
 });
 const userId = JSON.parse(localStorage.getItem('user')).id;
-const route = useRoute();
-const roomId = computed(() => route.params.roomId);
-
+const roomId = computed(() => useRoomStore().currentActive);
 
 onUnmounted(() => {
   WebSocketManager.getInstance().disconnect();
@@ -83,6 +78,7 @@ const handleMessage = (event: MessageEvent) => {
 
   }else if(data.messageType === "SysMsg"){
     useRoomStore().fetchRooms();
+    messageStore.addMessage(data);
   }
   else {
     messageStore.addMessage(data);

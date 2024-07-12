@@ -1,0 +1,27 @@
+<template>
+    <pre class="sys-message padding-10">{{ text }}</pre>
+</template>
+
+<script setup>
+defineProps({
+    text: {
+        type: String,
+        default: () => ''
+    }
+})
+</script>
+
+<style lang="scss" scoped>
+.sys-message {
+    color: var(--el-color-info-light-3);
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: unset;
+    font-size: unset;
+    background-color: var(--card-hover-background-color);
+    border-radius: var(--el-border-radius-round);
+    border-top-left-radius: 2px;
+    max-width: 70%;
+
+}
+</style>

@@ -10,38 +10,27 @@
 
 <script setup lang = 'ts'>
 import { useRoomStore } from '@/store/RoomStore';
-import { computed, defineEmits  } from 'vue';
-import { useRouter } from 'vue-router';
-import { useMessageStore } from '@/store/MessageStore';
-import WebSocketManager from '@/service/websocket/websocketManager';
+import { computed } from 'vue';
+
 const emit = defineEmits<{
-  (e: 'call-parent-method', payload: string): void;
+  (e: 'reloadPage'): void;
 }>();
-const router = useRouter();
+
 const props = defineProps({
     room: {
         type: Object,
         required: true,
     },
 })
-
-const activeId = computed(() => useRoomStore().currentActive)
+const roomStore = useRoomStore();
+const activeId = computed(() => roomStore.currentActive)
 const clickHandle = async() => {
-    
     if(props.room.roomId!==activeId.value) {
-        // WebSocketManager.getInstance().disconnect();
-        console.log("clikclick")
-        useRoomStore().setActiveId(props.room.roomId);
-        emit('call-parent-method', 'Hello from child');
-        
-        console.log("clikclick2")
-        
-        // router.push(`/chats/${props.room.roomId}`);
-        
+        console.log("ask for reload")
+        roomStore.setActiveId(props.room.roomId);
+        emit('reloadPage');
     }
 }
-
-
 </script>
 
 <style lang="scss" scoped>
