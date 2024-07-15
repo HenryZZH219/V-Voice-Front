@@ -13,7 +13,7 @@ export const useUserStore = defineStore('userStore', {
         },
         userExists: (state) => (userId) => {
             // console.log("check exists:" + userId)
-            return state.userMap.has(userId);
+            return state.userMap.has(userId) && state.userMap.get(userId) !== null;
         }
     },
     actions: {
