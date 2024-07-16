@@ -19,7 +19,6 @@ import GroupUserPanel from './user-panel/index.vue'
 import { ref, computed, onMounted } from 'vue';
 import { useRoomStore } from '@/store/RoomStore';
 import { useMessageStore } from '@/store/MessageStore';
-import { registerLoading } from 'echarts';
 
 
 const RoomStore = useRoomStore();
@@ -28,12 +27,10 @@ const roomId = computed(() => RoomStore.currentActive);
 const loading = ref(true);
 
 onMounted(async () => {
-    console.log("roomshomepage")
     await reloadPage();
 })
 
 const reloadPage = async ()=>{
-    console.log("reloading");
     loading.value = true;
     await RoomStore.fetchRooms();
     useMessageStore().InitMessage();

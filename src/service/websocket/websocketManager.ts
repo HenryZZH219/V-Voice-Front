@@ -19,33 +19,7 @@ class WebSocketManager {
     return WebSocketManager.instance;
   }
 
-  // public connect(url: string): void {
-  //   if (this.socket) {
-  //     return;
-  //   }
-
-  //   this.socket = new WebSocket(url);
-
-  //   this.socket.addEventListener('message', (event) => {
-  //     this.messageHandlers.forEach((handler) => handler(event));
-  //   });
-
-  //   this.socket.addEventListener('error', (error) => {
-  //     this.errorHandlers.forEach((handler) => handler(error));
-  //   });
-
-  //   this.socket.addEventListener('close', (event) => {
-  //     this.closeHandlers.forEach((handler) => handler(event));
-  //     this.socket = null;
-  //   });
-  // }
-
-  // public disconnect(): void {
-  //   if (this.socket) {
-  //     this.socket.close();
-  //     this.socket = null;
-  //   }
-  // }
+  
 
   public async connect(url: string): Promise<void> {
     if (this.socket) {
@@ -118,6 +92,10 @@ class WebSocketManager {
 
   public removeCloseHandler(handler: CloseHandler): void {
     this.closeHandlers = this.closeHandlers.filter(h => h !== handler);
+  }
+
+  public isWebSocketConnected() {
+    return this.socket.readyState === WebSocket.OPEN;
   }
 
 }

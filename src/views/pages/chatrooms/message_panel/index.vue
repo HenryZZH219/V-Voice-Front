@@ -31,7 +31,7 @@ import { MessageSent, MessageReceive } from '@/types/user';
 import { onMounted, ref, onUnmounted, reactive, computed, watch, nextTick, onBeforeMount } from 'vue';
 import WebSocketManager from '@/service/websocket/websocketManager';
 import { useRoomStore } from '@/store/RoomStore';
-
+import { useWebRTCStore } from '@/store/webRTCStore';
 
 const name = "聊天"
 const loading = ref(true);
@@ -79,8 +79,10 @@ const handleMessage = (event: MessageEvent) => {
   }else if(data.messageType === "SysMsg"){
     useRoomStore().fetchRooms();
     messageStore.addMessage(data);
-  }
-  else {
+  }else if(data.messageType === "RTCMsg"){
+    useWebRTCStore().handleSignalMessage(data.content);
+    console.log("data.RTCMsg:", data.content)
+  }else {
     messageStore.addMessage(data);
   }
 
