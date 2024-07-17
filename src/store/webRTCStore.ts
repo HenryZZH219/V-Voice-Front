@@ -38,6 +38,7 @@ export const useWebRTCStore = defineStore('webrtc', {
             const peerConnection = new RTCPeerConnection(configuration);
 
             peerConnection.onicecandidate = event => {
+                console.log('New ICE candidate:', event.candidate);
                 if (event.candidate) {
                     const message = {
                         type: "candidate",

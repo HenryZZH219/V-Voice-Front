@@ -3,6 +3,7 @@
     <el-scrollbar ref="refScrollbar">
       <div ref="refInner" class="padding-n-5">
         <el-button @click="callUser"></el-button>
+        <el-button @click="show"></el-button>
         <div class="wrap padding-5 cursor-pointer flex flex_a_i-center" v-for="userId in users" :key="userId">
           <!-- @click="clickHandle(userId)" -->
           <UserCard :userId="userId"></UserCard>
@@ -43,6 +44,16 @@ const callUser = () => {
       webRTCStore.createAndSendOffer(userId);
     }
   });
+};
+
+const show = () => {
+  const peerConnections = webRTCStore.peerConnections;
+  for (const key in peerConnections) {
+  if (peerConnections.hasOwnProperty(key)) {
+    const value = peerConnections[key];
+    console.log(`Key: ${key}, Value:`, value);
+  }
+}
 };
 
 </script>
