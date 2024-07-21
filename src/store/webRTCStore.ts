@@ -60,6 +60,7 @@ export const useWebRTCStore = defineStore('webrtc', {
 
             peerConnection.onconnectionstatechange = () => {
                 this.connectionStates[targetUserId] = peerConnection.connectionState;
+                console.log('connection state change',  peerConnection.connectionState);
             };
 
             this.peerConnections[targetUserId] = peerConnection;
