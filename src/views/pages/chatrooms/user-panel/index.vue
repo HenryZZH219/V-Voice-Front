@@ -39,6 +39,7 @@ const webRTCStore = useWebRTCStore();
 
 // });
 const callUser = () => {
+  webRTCStore.createAndSendOffer(webRTCStore.currentUserId);
   users.value.forEach(userId => {
     if (userId !== webRTCStore.currentUserId) {
       webRTCStore.createAndSendOffer(userId);

@@ -17,7 +17,18 @@ export const useWebRTCStore = defineStore('webrtc', {
         })()
     }),
     actions: {
-        createPeerConnection(targetUserId:number) {
+
+        async getUserMedia() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                return stream;
+            } catch (error) {
+                console.error('Error accessing media devices.', error);
+                throw error;
+            }
+        },
+
+        async createPeerConnection(targetUserId: number) {
 
             if (this.peerConnections[targetUserId]) {
                 return this.peerConnections[targetUserId];
@@ -35,7 +46,26 @@ export const useWebRTCStore = defineStore('webrtc', {
                     }
                 ]
             };
+
+
+
             const peerConnection = new RTCPeerConnection(configuration);
+
+            if(targetUserId == this.currentUserId){
+                // 获取音频流上传
+                const stream = await this.getUserMedia();
+                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+            } else{
+                //下载
+                peerConnection.ontrack = event => {
+                    const remoteStream = event.streams[0];
+                    const audioElement = document.createElement('audio');
+                    audioElement.srcObject = remoteStream;
+                    audioElement.play();
+                };
+            }
+
+
 
             peerConnection.onicecandidate = event => {
                 console.log('New ICE candidate:', event.candidate);
@@ -51,36 +81,34 @@ export const useWebRTCStore = defineStore('webrtc', {
                 }
             };
 
-            peerConnection.ontrack = event => {
-                const remoteStream = event.streams[0];
-                const audioElement = document.createElement('audio');
-                audioElement.srcObject = remoteStream;
-                audioElement.play();
-            };
+            
 
             peerConnection.onconnectionstatechange = () => {
                 this.connectionStates[targetUserId] = peerConnection.connectionState;
-                console.log('connection state change',  peerConnection.connectionState);
+                console.log('connection state change', peerConnection.connectionState);
             };
 
             this.peerConnections[targetUserId] = peerConnection;
+
+            //send init offer
+
             return peerConnection;
         },
         getPeerConnection(targetUserId) {
             return this.peerConnections[targetUserId];
         },
-        async createAndSendOffer(targetUserId:number) {
+        async createAndSendOffer(targetUserId: number) {
             const peerConnection = this.createPeerConnection(targetUserId);
             const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
-            
+
             const message = {
                 type: "offer",
                 from: this.currentUserId,
                 to: targetUserId,
                 sdp: offer.sdp
             };
-            
+
             this.sendSignalMessage(message);
         },
         sendSignalMessage(message) {
