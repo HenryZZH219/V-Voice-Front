@@ -4,6 +4,7 @@
       <div ref="refInner" class="padding-n-5">
         <el-button @click="callUser"></el-button>
         <el-button @click="show"></el-button>
+        <el-button @click="show2"></el-button>
         <div class="wrap padding-5 cursor-pointer flex flex_a_i-center" v-for="userId in users" :key="userId">
           <!-- @click="clickHandle(userId)" -->
           <UserCard :userId="userId"></UserCard>
@@ -33,13 +34,11 @@ const users = computed(() => {
 const webRTCStore = useWebRTCStore();
 
 // onMounted(() => {
-//   // 初始化所有用户的连接
-//   webRTCStore.initializeConnections(users.value);
-
-
+//   // 初始化上传链接
+//   webRTCStore.joinRoom(roomStore.currentActive);
 // });
 const callUser = () => {
-  webRTCStore.createAndSendOffer(webRTCStore.currentUserId);
+  
   users.value.forEach(userId => {
     if (userId !== webRTCStore.currentUserId) {
       webRTCStore.createAndSendOffer(userId);
@@ -48,13 +47,26 @@ const callUser = () => {
 };
 
 const show = () => {
+  webRTCStore.createAndSendOffer(webRTCStore.currentUserId);
+  webRTCStore.joinRoom(roomStore.currentActive);
+  // const peerConnections = webRTCStore.peerConnections;
+  // for (const key in peerConnections) {
+  //   if (peerConnections.hasOwnProperty(key)) {
+  //     const value = peerConnections[key];
+  //     console.log(`Key: ${key}, Value:`, value);
+  //   }
+  // }
+};
+
+const show2 = () => {
+
   const peerConnections = webRTCStore.peerConnections;
   for (const key in peerConnections) {
-  if (peerConnections.hasOwnProperty(key)) {
-    const value = peerConnections[key];
-    console.log(`Key: ${key}, Value:`, value);
+    if (peerConnections.hasOwnProperty(key)) {
+      const value = peerConnections[key];
+      console.log(`Key: ${key}, Value:`, value);
+    }
   }
-}
 };
 
 </script>

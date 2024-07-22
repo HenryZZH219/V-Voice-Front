@@ -14,7 +14,8 @@ export const useWebRTCStore = defineStore('webrtc', {
                 console.error('Failed to parse user from localStorage', error);
                 return null;
             }
-        })()
+        })(),
+        RoomId: -1
     }),
     actions: {
 
@@ -55,6 +56,14 @@ export const useWebRTCStore = defineStore('webrtc', {
                 // 获取音频流上传
                 const stream = await this.getUserMedia();
                 stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+
+                //下载
+                peerConnection.ontrack = event => {
+                    const remoteStream = event.streams[0];
+                    const audioElement = document.createElement('audio');
+                    audioElement.srcObject = remoteStream;
+                    audioElement.play();
+                };
             } else{
                 //下载
                 peerConnection.ontrack = event => {
@@ -74,7 +83,8 @@ export const useWebRTCStore = defineStore('webrtc', {
                         type: "candidate",
                         from: this.currentUserId,
                         to: targetUserId,
-                        candidate: event.candidate
+                        candidate: event.candidate,
+                        roomId: this.roomId
                     }
 
                     this.sendSignalMessage(message);
@@ -91,6 +101,7 @@ export const useWebRTCStore = defineStore('webrtc', {
             this.peerConnections[targetUserId] = peerConnection;
 
             //send init offer
+            console.log("peerconnection added", targetUserId);
 
             return peerConnection;
         },
@@ -98,15 +109,26 @@ export const useWebRTCStore = defineStore('webrtc', {
             return this.peerConnections[targetUserId];
         },
         async createAndSendOffer(targetUserId: number) {
-            const peerConnection = this.createPeerConnection(targetUserId);
+            const peerConnection = await this.createPeerConnection(targetUserId);
             const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
 
             const message = {
-                type: "offer",
+                type: "receiveVideoFrom",
                 from: this.currentUserId,
                 to: targetUserId,
-                sdp: offer.sdp
+                sdp: offer.sdp,
+                roomId: this.roomId
+            };
+
+            this.sendSignalMessage(message);
+        },
+        joinRoom(roomId:number) {
+            this.roomId = roomId;
+            const message = {
+                type: "joinRoom",
+                from: this.currentUserId,
+                roomId: this.roomId
             };
 
             this.sendSignalMessage(message);
@@ -127,19 +149,20 @@ export const useWebRTCStore = defineStore('webrtc', {
         },
         async handleSignalMessage(message) {
             const data = JSON.parse(message);
-            console.log("data:", data)
             if (data.to !== this.currentUserId) {
                 return;
             }
 
-            const targetUserId = data.from;
+            const targetUserId = data.to;
             let peerConnection = this.getPeerConnection(targetUserId);
 
             if (!peerConnection) {
                 peerConnection = this.createPeerConnection(targetUserId);
             }
-
+            console.error("什么情况");
+            console.log(data);
             if (data.type === "offer") {
+                /*
                 await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: "offer", sdp: data.sdp }));
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
@@ -147,13 +170,26 @@ export const useWebRTCStore = defineStore('webrtc', {
                     type: "answer",
                     from: this.currentUserId,
                     to: targetUserId,
-                    sdp: answer.sdp
+                    sdp: answer.sdp,
+                    roomId: this.roomId
                 });
+                */
+               console.error("Unknown type")
             } else if (data.type === "answer") {
+                console.log("process answer")
                 await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: "answer", sdp: data.sdp }));
-            } else if (data.type === "candidate") {
-                const candidate = new RTCIceCandidate(data.candidate);
-                await peerConnection.addIceCandidate(candidate);
+            } else if (data.type === "iceCandidate") {
+                console.log("process candidate")
+                console.log(JSON.parse(data.candidate))
+                const candidate = new RTCIceCandidate(JSON.parse(data.candidate));
+                await peerConnection.addIceCandidate(candidate, function (error) {
+                    if (error) {
+                      console.error("Error adding candidate: " + error);
+                      return;
+                    }
+                });
+            } else if (data.type === "newParticipantArrived") {
+                this.createAndSendOffer(data.from)
             }
         },
 
