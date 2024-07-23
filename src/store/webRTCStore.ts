@@ -1,11 +1,12 @@
 // src/stores/webrtc.js
 import { defineStore } from 'pinia';
 import WebSocketManager from '@/service/websocket/websocketManager';
-import { number } from 'echarts';
+import { ref } from 'vue';
 export const useWebRTCStore = defineStore('webrtc', {
     state: () => ({
         peerConnections: {},
         connectionStates: {},
+        remoteAudio: ref({}),
         currentUserId: (() => {
             try {
                 const user = JSON.parse(localStorage.getItem('user'));
@@ -18,6 +19,9 @@ export const useWebRTCStore = defineStore('webrtc', {
         RoomId: -1
     }),
     actions: {
+        setRemoteAudio({ userId, audioElement }) {
+            this.remoteAudio[userId] = audioElement;
+        },
 
         async getUserMedia() {
             try {
@@ -52,35 +56,39 @@ export const useWebRTCStore = defineStore('webrtc', {
 
             const peerConnection = new RTCPeerConnection(configuration);
 
-            if(targetUserId == this.currentUserId){
-                // 获取音频流上传
-                const stream = await this.getUserMedia();
-                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+            // if(targetUserId == this.currentUserId){
+            //     // 获取音频流上传
+            //     const stream = await this.getUserMedia();
+            //     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
 
-                //下载
-                peerConnection.ontrack = event => {
-                    const remoteStream = event.streams[0];
-                    const audioElement = document.createElement('audio');
-                    audioElement.srcObject = remoteStream;
-                    audioElement.play();
-                };
-            } else{
-                //下载
-                peerConnection.ontrack = event => {
-                    const remoteStream = event.streams[0];
-                    const audioElement = document.createElement('audio');
-                    audioElement.srcObject = remoteStream;
-                    audioElement.play();
-                };
-            }
+            // } else{
+            //     //下载
+            //     peerConnection.ontrack = event => {
+            //         const remoteStream = event.streams[0];
+            //         const audioElement = document.createElement('audio');
+            //         audioElement.srcObject = remoteStream;
+            //         audioElement.play();
+            //     };
+            // }
 
+            // 创建一个空的音频轨道并添加到PeerConnection中
+            const audioContext = new (window.AudioContext)();
+            const destination = audioContext.createMediaStreamDestination();
+            const emptyAudioTrack = destination.stream.getAudioTracks()[0];
+            peerConnection.addTrack(emptyAudioTrack, destination.stream);
+            // peerConnection.ontrack = (event) => {
+            //     const remoteStream = event.streams[0];
+            //     if (this.remoteAudio[targetUserId]) {
+            //         this.remoteAudio[targetUserId].srcObject = remoteStream;
+            //     }
+            //   };
 
 
             peerConnection.onicecandidate = event => {
                 console.log('New ICE candidate:', event.candidate);
                 if (event.candidate) {
                     const message = {
-                        type: "candidate",
+                        type: "onIceCandidate",
                         from: this.currentUserId,
                         to: targetUserId,
                         candidate: event.candidate,
@@ -112,7 +120,8 @@ export const useWebRTCStore = defineStore('webrtc', {
             const peerConnection = await this.createPeerConnection(targetUserId);
             const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
-
+            console.log("offer");
+            console.log(offer.sdp)
             const message = {
                 type: "receiveVideoFrom",
                 from: this.currentUserId,
@@ -153,7 +162,7 @@ export const useWebRTCStore = defineStore('webrtc', {
                 return;
             }
 
-            const targetUserId = data.to;
+            const targetUserId = data.from;
             let peerConnection = this.getPeerConnection(targetUserId);
 
             if (!peerConnection) {
