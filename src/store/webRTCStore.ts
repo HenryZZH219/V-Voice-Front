@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import WebSocketManager from '@/service/websocket/websocketManager';
 import { ref } from 'vue';
+import { kurentoUtils } from 'kurento-utils';
 export const useWebRTCStore = defineStore('webrtc', {
     state: () => ({
         peerConnections: {},
@@ -19,6 +20,92 @@ export const useWebRTCStore = defineStore('webrtc', {
         RoomId: -1
     }),
     actions: {
+        /*
+                createAndSendOfferByUtils(targetUserId) {
+                    
+                    console.log(targetUserId + " registered in room " + this.RoomId);
+                    var participant = new Participant(name);
+                    participants[name] = participant;
+                    var video = participant.getVideoElement();
+                
+        
+                    
+                
+                    msg.data.forEach(receiveVideo);
+                },
+        
+                async createPeerConnectionByUtils(targetUserId: number) {
+                    if (this.peerConnections[targetUserId]) {
+                        return this.peerConnections[targetUserId];
+                    }
+        
+                    var constraints = {
+                        audio : true,
+                        // video : {
+                        //     mandatory : {
+                        //         maxWidth : 320,
+                        //         maxFrameRate : 15,
+                        //         minFrameRate : 15
+                        //     }
+                        // }
+                    };
+        
+                    var video = participant.getVideoElement();
+        
+                    var options = {
+                        localVideo: video,
+                        mediaConstraints: constraints,
+                        onicecandidate: event => {
+                            console.log('New ICE candidate:', event.candidate);
+                            if (event.candidate) {
+                                const message = {
+                                    type: "onIceCandidate",
+                                    from: this.currentUserId,
+                                    to: targetUserId,
+                                    candidate: event.candidate,
+                                    roomId: this.roomId
+                                }
+            
+                                this.sendSignalMessage(message);
+                            }
+                        }
+                      }
+        
+                    const participant = new kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options,
+                        function (error) {
+                          if(error) {
+                              return console.error(error);
+                          }
+                          this.generateOffer (participant.offerToReceiveVideo.bind(participant));
+                    });
+                },
+        
+        
+        
+        
+        
+        
+        
+        
+        */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        ///////////////////////下面是旧代码 现在直接重写////////////////////////////////
         setRemoteAudio({ userId, audioElement }) {
             this.remoteAudio[userId] = audioElement;
         },
@@ -42,10 +129,10 @@ export const useWebRTCStore = defineStore('webrtc', {
             const configuration = {
                 iceServers: [
                     {
-                        urls: "stun:124.70.216.41:3578" // STUN 服务器
+                        urls: "stun:124.70.216.41:3478" // STUN 服务器
                     },
                     {
-                        urls: "turn:124.70.216.41:3578", // TURN 服务器
+                        urls: "turn:124.70.216.41:3478", // TURN 服务器
                         username: "Henry",
                         credential: "zzh20010219"
                     }
@@ -56,32 +143,33 @@ export const useWebRTCStore = defineStore('webrtc', {
 
             const peerConnection = new RTCPeerConnection(configuration);
 
-            // if(targetUserId == this.currentUserId){
-            //     // 获取音频流上传
-            //     const stream = await this.getUserMedia();
-            //     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+            if (targetUserId == this.currentUserId) {
+                // 获取音频流上传
+                const stream = await this.getUserMedia();
+                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
 
-            // } else{
-            //     //下载
-            //     peerConnection.ontrack = event => {
-            //         const remoteStream = event.streams[0];
-            //         const audioElement = document.createElement('audio');
-            //         audioElement.srcObject = remoteStream;
-            //         audioElement.play();
-            //     };
-            // }
+            } else {
+                //下载
+                peerConnection.ontrack = event => {
+                    const remoteStream = event.streams[0];
+                    const audioElement = document.createElement('audio');
+                    audioElement.srcObject = remoteStream;
+                    audioElement.play();
+                };
+                // 创建一个空的音频轨道并添加到PeerConnection中
+                const audioContext = new (window.AudioContext)();
+                const destination = audioContext.createMediaStreamDestination();
+                const emptyAudioTrack = destination.stream.getAudioTracks()[0];
+                peerConnection.addTrack(emptyAudioTrack, destination.stream);
+                // peerConnection.ontrack = (event) => {
+                //     const remoteStream = event.streams[0];
+                //     if (this.remoteAudio[targetUserId]) {
+                //         this.remoteAudio[targetUserId].srcObject = remoteStream;
+                //     }
+                //   };
+            }
 
-            // 创建一个空的音频轨道并添加到PeerConnection中
-            const audioContext = new (window.AudioContext)();
-            const destination = audioContext.createMediaStreamDestination();
-            const emptyAudioTrack = destination.stream.getAudioTracks()[0];
-            peerConnection.addTrack(emptyAudioTrack, destination.stream);
-            // peerConnection.ontrack = (event) => {
-            //     const remoteStream = event.streams[0];
-            //     if (this.remoteAudio[targetUserId]) {
-            //         this.remoteAudio[targetUserId].srcObject = remoteStream;
-            //     }
-            //   };
+
 
 
             peerConnection.onicecandidate = event => {
@@ -99,7 +187,7 @@ export const useWebRTCStore = defineStore('webrtc', {
                 }
             };
 
-            
+
 
             peerConnection.onconnectionstatechange = () => {
                 this.connectionStates[targetUserId] = peerConnection.connectionState;
@@ -132,7 +220,7 @@ export const useWebRTCStore = defineStore('webrtc', {
 
             this.sendSignalMessage(message);
         },
-        joinRoom(roomId:number) {
+        joinRoom(roomId: number) {
             this.roomId = roomId;
             const message = {
                 type: "joinRoom",
@@ -183,7 +271,7 @@ export const useWebRTCStore = defineStore('webrtc', {
                     roomId: this.roomId
                 });
                 */
-               console.error("Unknown type")
+                console.error("Unknown type")
             } else if (data.type === "answer") {
                 console.log("process answer")
                 await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: "answer", sdp: data.sdp }));
@@ -193,8 +281,8 @@ export const useWebRTCStore = defineStore('webrtc', {
                 const candidate = new RTCIceCandidate(JSON.parse(data.candidate));
                 await peerConnection.addIceCandidate(candidate, function (error) {
                     if (error) {
-                      console.error("Error adding candidate: " + error);
-                      return;
+                        console.error("Error adding candidate: " + error);
+                        return;
                     }
                 });
             } else if (data.type === "newParticipantArrived") {

@@ -2,9 +2,10 @@
   <div class="user-panel">
     <el-scrollbar ref="refScrollbar">
       <div ref="refInner" class="padding-n-5">
-        <el-button @click="callUser"></el-button>
-        <el-button @click="show"></el-button>
-        <el-button @click="show2"></el-button>
+        <el-button @click="callUser">第二步</el-button>
+        <el-button @click="show">第一步</el-button>
+        <el-button @click="show2">显示rtc</el-button>
+        <el-button @click="getAudioDevices">显示音频设备</el-button>
         <div class="wrap padding-5 cursor-pointer flex flex_a_i-center" v-for="userId in users" :key="userId">
           <!-- @click="clickHandle(userId)" -->
           <UserCard :userId="userId"></UserCard>
@@ -38,7 +39,7 @@ const webRTCStore = useWebRTCStore();
 //   webRTCStore.joinRoom(roomStore.currentActive);
 // });
 const callUser = () => {
-  
+
   users.value.forEach(userId => {
     if (userId !== webRTCStore.currentUserId) {
       webRTCStore.createAndSendOffer(userId);
@@ -68,6 +69,12 @@ const show2 = () => {
     }
   }
 };
+
+const getAudioDevices = async () => {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  const audioInputDevices = devices.filter(device => device.kind === 'audioinput');
+  console.log(audioInputDevices);
+}
 
 </script>
 
