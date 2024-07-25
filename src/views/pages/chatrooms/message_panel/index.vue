@@ -53,7 +53,7 @@ onMounted(async () => {
 
   const websocketManager = WebSocketManager.getInstance();
   const token = localStorage.getItem('token');
-  const websocketUrl = `ws://localhost:8501/chat/${roomId.value}?token=${token}`;
+  const websocketUrl = `ws://${window.location.hostname}:8501/chat/${roomId.value}?token=${token}`;
   await websocketManager.connect(websocketUrl);
   websocketManager.addMessageHandler(handleMessage);
   websocketManager.addCloseHandler(handleClose);

@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia';
 import WebSocketManager from '@/service/websocket/websocketManager';
 import { ref } from 'vue';
-import { kurentoUtils } from 'kurento-utils';
+
 export const useWebRTCStore = defineStore('webrtc', {
     state: () => ({
         peerConnections: {},
@@ -20,92 +20,7 @@ export const useWebRTCStore = defineStore('webrtc', {
         RoomId: -1
     }),
     actions: {
-        /*
-                createAndSendOfferByUtils(targetUserId) {
-                    
-                    console.log(targetUserId + " registered in room " + this.RoomId);
-                    var participant = new Participant(name);
-                    participants[name] = participant;
-                    var video = participant.getVideoElement();
-                
-        
-                    
-                
-                    msg.data.forEach(receiveVideo);
-                },
-        
-                async createPeerConnectionByUtils(targetUserId: number) {
-                    if (this.peerConnections[targetUserId]) {
-                        return this.peerConnections[targetUserId];
-                    }
-        
-                    var constraints = {
-                        audio : true,
-                        // video : {
-                        //     mandatory : {
-                        //         maxWidth : 320,
-                        //         maxFrameRate : 15,
-                        //         minFrameRate : 15
-                        //     }
-                        // }
-                    };
-        
-                    var video = participant.getVideoElement();
-        
-                    var options = {
-                        localVideo: video,
-                        mediaConstraints: constraints,
-                        onicecandidate: event => {
-                            console.log('New ICE candidate:', event.candidate);
-                            if (event.candidate) {
-                                const message = {
-                                    type: "onIceCandidate",
-                                    from: this.currentUserId,
-                                    to: targetUserId,
-                                    candidate: event.candidate,
-                                    roomId: this.roomId
-                                }
-            
-                                this.sendSignalMessage(message);
-                            }
-                        }
-                      }
-        
-                    const participant = new kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options,
-                        function (error) {
-                          if(error) {
-                              return console.error(error);
-                          }
-                          this.generateOffer (participant.offerToReceiveVideo.bind(participant));
-                    });
-                },
-        
-        
-        
-        
-        
-        
-        
-        
-        */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        ///////////////////////下面是旧代码 现在直接重写////////////////////////////////
         setRemoteAudio({ userId, audioElement }) {
             this.remoteAudio[userId] = audioElement;
         },

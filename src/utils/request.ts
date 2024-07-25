@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import router from '@/router'
 const service: AxiosInstance = axios.create({
-    baseURL: 'http://localhost:8501',
+    // baseURL: 'http://localhost:8501',
+    baseURL: `${window.location.protocol}//${window.location.hostname}:8501`,
     timeout: 5000
 });
 

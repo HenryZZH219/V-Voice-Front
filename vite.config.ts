@@ -4,6 +4,8 @@ import VueSetupExtend from 'vite-plugin-vue-setup-extend';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import fs from 'fs';
+import path from 'path';
 export default defineConfig({
 	base: './',
 	plugins: [
@@ -30,6 +32,10 @@ export default defineConfig({
 	},
 	server: {
 		host: '0.0.0.0',
-		port: 5173
+		port: 5173,
+		// https: {
+		// 	cert:fs.readFileSync(path.resolve(__dirname, 'src/ssl/cert.crt')),
+		// 	key:fs.readFileSync(path.resolve(__dirname, 'src/ssl/cert.key'))
+		// }
 	}
 });
