@@ -1,4 +1,7 @@
 // src/service/websocketManager.ts
+
+import { ref } from 'vue';
+
 type MessageHandler = (event: MessageEvent) => void;
 type ErrorHandler = (error: Event) => void;
 type CloseHandler = (event: CloseEvent) => void;
@@ -9,6 +12,8 @@ class WebSocketManager {
   private messageHandlers: MessageHandler[] = [];
   private errorHandlers: ErrorHandler[] = [];
   private closeHandlers: CloseHandler[] = [];
+
+  public established = ref(false);
 
   private constructor() {}
 
@@ -44,6 +49,10 @@ class WebSocketManager {
       this.closeHandlers.forEach((handler) => handler(event));
       this.socket = null;
     });
+
+    this.socket.onopen = (error) => {
+      this.established.value = true;
+    }
   }
 
   public disconnect(): Promise<void> {

@@ -71,8 +71,15 @@ import { useSidebarStore } from '../store/sidebar';
 import { useRouter } from 'vue-router';
 import imgurl from '../assets/img/img.jpg';
 import { Logout } from '@/api/index'
+import { GetUserInfo } from '@/api/user'
+
+
+
 const user = computed(() => {
+    // return await 
+    GetUserInfo();
     return JSON.parse(localStorage.getItem('user'));
+    // GetUserInfo();
 })
 
 const message: number = 2;
@@ -83,7 +90,8 @@ const collapseChage = () => {
     sidebar.handleCollapse();
 };
 
-onMounted(() => {
+onMounted(async () => {
+    
     if (document.body.clientWidth < 1500) {
         collapseChage();
     }

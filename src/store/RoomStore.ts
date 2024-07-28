@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
-import { useMessageStore } from '@/store/MessageStore';
+import { ref } from 'vue';
 import { GetRoomsInfo } from '@/api/room'
 export const useRoomStore = defineStore('rooms', {
     state: () => ({

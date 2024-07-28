@@ -2,10 +2,11 @@
   <div class="user-panel">
     <el-scrollbar ref="refScrollbar">
       <div ref="refInner" class="padding-n-5">
-        <el-button @click="callUser">第二步</el-button>
+        <!-- <el-button @click="callUser">第二步</el-button>
         <el-button @click="show">第一步</el-button>
-        <el-button @click="show2">显示rtc</el-button>
+
         <el-button @click="getAudioDevices">显示音频设备</el-button>
+        <el-button @click="show2">显示rtc</el-button> -->
         <div class="wrap padding-5 cursor-pointer flex flex_a_i-center" v-for="userId in users" :key="userId">
           <!-- @click="clickHandle(userId)" -->
           <UserCard :userId="userId"></UserCard>
@@ -20,8 +21,8 @@
 <script lang="ts" setup>
 import { useRoomStore } from '@/store/RoomStore';
 import { useWebRTCStore } from '@/store/webRTCStore';
-import { ref, computed, onMounted } from 'vue';
-
+import { ref, computed, watch } from 'vue';
+import WebSocketManager from '@/service/websocket/websocketManager';
 import UserCard from './user-card/index.vue'
 
 const roomStore = useRoomStore()
@@ -36,8 +37,38 @@ const webRTCStore = useWebRTCStore();
 
 // onMounted(() => {
 //   // 初始化上传链接
+//   webRTCStore.createAndSendOffer(webRTCStore.currentUserId);
 //   webRTCStore.joinRoom(roomStore.currentActive);
 // });
+
+watch(() => WebSocketManager.getInstance().established.value, async (newValue) => {
+  if (newValue) {
+    // 在连接建立后执行操作
+    webRTCStore.joinRoom(roomStore.currentActive);
+    await webRTCStore.createAndSendOffer(webRTCStore.currentUserId);
+  }
+});
+const userId = JSON.parse(localStorage.getItem('user')).id;
+const isConnectionActive = computed(() => {
+  const peerConnection = webRTCStore.getPeerConnection(userId);
+  return peerConnection && webRTCStore.getConnectionState(userId) === 'connected';
+})
+watch(() => isConnectionActive.value, (newValue) => {
+  if (newValue) {
+    // 在连接建立后执行操作
+    console.log("start---")
+    console.log(users.value)
+    if (users.value.length == null)
+      return;
+    users.value.forEach(userId => {
+      if (userId !== webRTCStore.currentUserId) {
+        webRTCStore.createAndSendOffer(userId);
+      }
+    });
+  }
+});
+
+
 const callUser = () => {
 
   users.value.forEach(userId => {
@@ -47,9 +78,20 @@ const callUser = () => {
   });
 };
 
-const show = () => {
-  webRTCStore.createAndSendOffer(webRTCStore.currentUserId);
+const show = async () => {
+
   webRTCStore.joinRoom(roomStore.currentActive);
+  await webRTCStore.createAndSendOffer(webRTCStore.currentUserId);
+
+  // const users = useRoomStore().getRoomById(useRoomStore().currentActive).onlineUsers;
+  if (users.value.size == null)
+    return;
+  users.value.forEach(userId => {
+    if (userId !== webRTCStore.currentUserId) {
+      webRTCStore.createAndSendOffer(userId);
+    }
+  });
+
   // const peerConnections = webRTCStore.peerConnections;
   // for (const key in peerConnections) {
   //   if (peerConnections.hasOwnProperty(key)) {

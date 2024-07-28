@@ -7,7 +7,7 @@
       <div class="header flex_a_i-center">
         <span class="margin_l-10">{{ name }}</span>
       </div>
-      <el-scrollbar ref="refScrollbar"  :always="true" @scroll="scrollHandle">
+      <el-scrollbar ref="refScrollbar" :always="true" @scroll="scrollHandle">
         <div ref="refInner" class="flex-item_f-1 padding-15">
           <div class="message-wrap" v-for="item in messages" :key="item.messageId">
             <Message :message="item" :reverse="item.userId === userId" :key="item.messageId" v-if="loading === false">
@@ -33,7 +33,7 @@ import WebSocketManager from '@/service/websocket/websocketManager';
 import { useRoomStore } from '@/store/RoomStore';
 import { useWebRTCStore } from '@/store/webRTCStore';
 
-const name = "聊天"
+const name = computed(() => useRoomStore().getRoomById(roomId.value).roomName);
 const loading = ref(true);
 const messageStore = useMessageStore();
 const messages = computed(() => {
@@ -52,6 +52,7 @@ onMounted(async () => {
   loading.value = false;
 
   const websocketManager = WebSocketManager.getInstance();
+  websocketManager.established.value = false;
   const token = localStorage.getItem('token');
   const websocketUrl = `ws://${window.location.hostname}:8501/chat/${roomId.value}?token=${token}`;
   await websocketManager.connect(websocketUrl);
@@ -63,7 +64,9 @@ onMounted(async () => {
     scrollToBottom()
   })
 });
-const handleMessage = (event: MessageEvent) => {
+
+
+const handleMessage = async(event: MessageEvent) => {
   const data = JSON.parse(event.data);
   if (data.messageType === "PING_PONG") {
     if (data.content === "ping") {
@@ -76,13 +79,13 @@ const handleMessage = (event: MessageEvent) => {
       console.log("pong")
     }
 
-  }else if(data.messageType === "SysMsg"){
+  } else if (data.messageType === "SysMsg") {
     useRoomStore().fetchRooms();
     messageStore.addMessage(data);
-  }else if(data.messageType === "RTCMsg"){
-    useWebRTCStore().handleSignalMessage(data.content);
-    console.log("data.RTCMsg:", data.content)
-  }else {
+  } else if (data.messageType === "RTCMsg") {
+    await useWebRTCStore().handleSignalMessage(data.content);
+    // console.log("data.RTCMsg:", data.content)
+  } else {
     messageStore.addMessage(data);
   }
 
@@ -95,6 +98,7 @@ const handleError = (error: Event) => {
 
 const handleClose = (event: CloseEvent) => {
   console.log('WebSocket closed: ', event);
+  useWebRTCStore().resetWebRtcStore();
 };
 
 const refScrollbar = ref()
@@ -150,6 +154,14 @@ const scrollHandle = async (scroll) => {
   .header {
     padding: 10px 15px;
     border-bottom: 1px solid var(--wrap-background-color);
+
+    //   transform: translate(-50%, -50%);
+    color: var(--el-color-info-light-5);
+    /* 设置文字颜色 */
+    font-size: 20px;
+    /* 设置文字大小 */
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   }
 
   .message-wrap+.message-wrap {

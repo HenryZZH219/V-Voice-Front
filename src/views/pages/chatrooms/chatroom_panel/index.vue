@@ -44,6 +44,8 @@ const clickHandle = async() => {
     height: 50px;
     /* 根据需要调整高度 */
     width: 100%;
+
+    border: 0px solid black;
 }
 .inactive-room {
     // background-color: var(--card-background-color);
@@ -55,6 +57,8 @@ const clickHandle = async() => {
     /* 根据需要调整高度 */
     width: 100%;
     cursor: pointer;
+
+    border: 0px solid black;
 }
 
 // .left-section {

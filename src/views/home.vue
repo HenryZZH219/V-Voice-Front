@@ -6,11 +6,12 @@
             <!-- <v-tabs></v-tabs> -->
             <div class="content">
                 <router-view v-slot="{ Component }">
-                    <transition name="move" mode="out-in">
+                    <component :is="Component"></component>
+                    <!-- <transition name="move" mode="out-in">
                         <keep-alive :include="tabs.nameList">
                             <component :is="Component"></component>
                         </keep-alive>
-                    </transition>
+                    </transition> -->
                 </router-view>
             </div>
         </div>
