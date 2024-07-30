@@ -71,7 +71,7 @@ const reloadPage = async () => {
     /* 当内容超出时显示滚动条 */
     overflow-x: hidden;
     /* 隐藏水平滚动条 */
-    border: 1px solid black;
+    //border: 1px solid black;
     /* 用于调试，确保样式应用 */
     // 
 }

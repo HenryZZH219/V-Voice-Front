@@ -126,7 +126,7 @@ watch(messages, () => {
 }, { deep: true })
 
 const scrollHandle = async (scroll) => {
-  console.log("top", scroll.scrollTop)
+  // console.log("top", scroll.scrollTop)
   // console.log(roomId.value)
   // scrollTop.value = scroll.scrollTop
   if (scroll.scrollTop < 1 && !loading.value) { //&& !loading.value && !finished.value

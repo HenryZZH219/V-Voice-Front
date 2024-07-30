@@ -29,7 +29,7 @@
                         <i class="el-icon-lx-twitter-fill"></i>
                     </div> -->
                 </div>
-                <div class="user-footer">
+                <!-- <div class="user-footer">
                     <div class="user-footer-item">
                         <el-statistic title="Follower" :value="1800" />
                     </div>
@@ -39,14 +39,14 @@
                     <div class="user-footer-item">
                         <el-statistic title="Total Post" :value="888" />
                     </div>
-                </div>
+                </div> -->
             </el-card>
             <el-card class="user-content" shadow="hover"
                 :body-style="{ padding: '20px 50px', height: '100%', boxSizing: 'border-box' }">
                 <el-tabs tab-position="left" v-model="activeName">
-                    <el-tab-pane name="label1" label="消息通知" class="user-tabpane">
+                    <!-- <el-tab-pane name="label1" label="消息通知" class="user-tabpane">
                         <TabsComp />
-                    </el-tab-pane>
+                    </el-tab-pane> -->
                     <el-tab-pane name="label2" label="我的头像" class="user-tabpane">
                         <div class="crop-wrap" v-if="activeName === 'label2'">
                             <vueCropper ref="cropper" :img="imgSrc" :autoCrop="true" :centerBox="true" :full="true"

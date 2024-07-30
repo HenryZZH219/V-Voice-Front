@@ -30,7 +30,7 @@
                     <el-link type="primary" @click="$router.push('/reset-pwd')">忘记密码</el-link>
                 </div>
                 <el-button class="login-btn" type="primary" size="large" @click="submitForm(login)">登录</el-button>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
+                <p class="login-tips">Tips : 本网站由于没有使用https因此没有调用麦克风的权限 因此请使用谷歌浏览器地址栏输入[chrome://flags/#unsafely-treat-insecure-origin-as-secure]并填入本网站的地址来使用。</p>
                 <p class="login-text">
                     没有账号？<el-link type="primary" @click="$router.push('/register')">立即注册</el-link>
                 </p>
